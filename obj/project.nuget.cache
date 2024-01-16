@@ -1,0 +1,15 @@
+{
+  "version": 2,
+  "dgSpecHash": "DbFghN3d5rkzZiTAe0xsAASm8YHxMjYFs1TsLcEJqKXW4KURwBkGbnpWqn1ljmw+JXSseK1zoXQhpEcdNmom4g==",
+  "success": true,
+  "projectFilePath": "C:\\Project\\C#\\DustyEngine\\DustyEngine\\DustyEngine.csproj",
+  "expectedPackageFiles": [
+    "C:\\Users\\Maks\\.nuget\\packages\\csfml\\2.5.2\\csfml.2.5.2.nupkg.sha512",
+    "C:\\Users\\Maks\\.nuget\\packages\\sfml.audio\\2.5.1\\sfml.audio.2.5.1.nupkg.sha512",
+    "C:\\Users\\Maks\\.nuget\\packages\\sfml.graphics\\2.5.1\\sfml.graphics.2.5.1.nupkg.sha512",
+    "C:\\Users\\Maks\\.nuget\\packages\\sfml.net\\2.5.1\\sfml.net.2.5.1.nupkg.sha512",
+    "C:\\Users\\Maks\\.nuget\\packages\\sfml.system\\2.5.1\\sfml.system.2.5.1.nupkg.sha512",
+    "C:\\Users\\Maks\\.nuget\\packages\\sfml.window\\2.5.1\\sfml.window.2.5.1.nupkg.sha512"
+  ],
+  "logs": []
+}
