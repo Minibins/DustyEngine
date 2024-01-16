@@ -9,33 +9,41 @@ using Window = DustyEngine.Window.Window;
 
 public class Game
 {
-    private Scene scene;
-    private Window window;
-    private GameObject obj;
-
     public void Start()
     {
-        scene = new Scene();
+        Scene scene = new Scene();
 
-        window = new Window(640, 480, 60, "test", scene);
+        Window  window = new Window(640, 480, 60, "test", scene);
         
+        GameObject obj = new GameObject();
         
-         obj = new GameObject();
-       
-         
          scene.Instantiate(obj);
          
          obj.color = Color.Green;
          
-         obj.transform.Scale = new Vector2f(20,20);
+         obj.transform.Position = new Vector2f(50,350);
+         obj.transform.Scale = new Vector2f(50,50);
          
          obj.UpdateObj();
+         
+         
+         GameObject obj1 = new GameObject();
+        
+         scene.Instantiate(obj1);
+         
+         obj1.color = Color.White;
+         
+         obj1.transform.Position = new Vector2f(20,400);
+         obj1.transform.Scale = new Vector2f(600,50);
+         
+         obj1.UpdateObj();
+         
     }
 
 
     public void Update()    
     {
-        //    Console.WriteLine(obj.Position);
+
         if (Input.IsKeyPressed(Keyboard.Key.D))
         {
            Console.WriteLine("Pressed");

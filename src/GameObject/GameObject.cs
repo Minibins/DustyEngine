@@ -1,4 +1,5 @@
-﻿using SFML.Graphics;
+﻿using System;
+using SFML.Graphics;
 using SFML.System;
 
 namespace DustyEngine.GameObject
@@ -28,6 +29,11 @@ namespace DustyEngine.GameObject
             Shape.Position = transform.Position;
             Shape.Size = transform.Scale;
             Shape.FillColor = color;
+            
+            Console.WriteLine("Object:");
+            Console.WriteLine(transform.Position);
+            Console.WriteLine(transform.Scale);
+            Console.WriteLine(color + "\n");
         }
 
         public void Draw(RenderWindow window)
