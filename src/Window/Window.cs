@@ -26,8 +26,8 @@ namespace DustyEngine.Window
 
         private void CreateWindow()
         {
-            window = new RenderWindow(new VideoMode(this.width, this.height), this.title);
-            window.SetFramerateLimit(this.fpsLimit);
+            window = new RenderWindow(new VideoMode(width, height), title);
+            window.SetFramerateLimit(fpsLimit);
             window.Closed += OnClosed;
 
             Run();

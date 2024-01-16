@@ -1,22 +1,44 @@
-﻿using DustyEngine;
+﻿using System;
+using DustyEngine;
 using DustyEngine.GameObject;
+using DustyEngine.Input;
 using SFML.Graphics;
 using SFML.System;
+using SFML.Window;
 using Window = DustyEngine.Window.Window;
 
 public class Game
 {
     private Scene scene;
     private Window window;
+    private GameObject obj;
 
     public void Start()
     {
         scene = new Scene();
-        scene.Instantiate(new GameObject(new Vector2f(100, 100), new Vector2f(50, 50), Color.Blue));
-        
-        window = new Window(640, 480, 60, "test", scene);
 
-        scene.Instantiate(new GameObject(new Vector2f(200, 100), new Vector2f(50, 50), Color.Red));
+        window = new Window(640, 480, 60, "test", scene);
+        
+        
+         obj = new GameObject();
+       
+         
+         scene.Instantiate(obj);
+         
+         obj.color = Color.Green;
+         
+         obj.transform.Scale = new Vector2f(20,20);
+         
+         obj.UpdateObj();
     }
-    
+
+
+    public void Update()    
+    {
+        //    Console.WriteLine(obj.Position);
+        if (Input.IsKeyPressed(Keyboard.Key.D))
+        {
+           Console.WriteLine("Pressed");
+        }
+    }
 }
