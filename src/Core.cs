@@ -5,6 +5,7 @@ namespace DustyEngine
 {
     public class Core
     {
+        private Scene scene;
         public Core()
         {
             Assembly assembly = Assembly.GetExecutingAssembly();

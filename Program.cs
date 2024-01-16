@@ -1,12 +1,10 @@
-using DustyEngine;
-
-
-class Program
+namespace DustyEngine
 {
-    private static Scene scene;
-    
-    static void Main()
+    internal static class Program
     {
-      Core core = new Core();
+        private static void Main()
+        {
+            Core core = new Core();
+        }
     }
 }

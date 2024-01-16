@@ -18,7 +18,7 @@ namespace DustyEngine.GameObject
             };
             Velocity = new Vector2f(0, 0);
         }
-
+        
         public void Draw(RenderWindow window)
         {
             window.Draw(Shape);
