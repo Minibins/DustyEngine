@@ -11,11 +11,11 @@ public class Scene : MessagesRestreamer
         
             window = new Window(640,480,60,"test",instance);
         }
-    static public List<GameObject> GameObjects
-    {
-        get=>instance.children.OfType<GameObject>().ToList();
-        set => instance.children = value.OfType<object>().ToList();
-    }
+    static public List<object> GameObjects => instance.children;
+ // {
+ //     get=>instance.children.OfType<GameObject>().ToList();
+ //     set => instance.children = value.OfType<object>().ToList();
+ // }
     public static void Instantiate(GameObject obj)
     { 
         GameObjects.Add(obj);

@@ -35,8 +35,8 @@ public class Window
 
         foreach(var gameObject in Scene.GameObjects)
         {
-            gameObject.Draw(window);
-        }
+            if(gameObject.GetType() == typeof(GameObject)) (gameObject as GameObject).Draw(window);
+            }
 
         window.Display();
     }
