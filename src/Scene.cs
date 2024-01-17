@@ -1,14 +1,30 @@
 ﻿using System.Collections.Generic;
 
-namespace DustyEngine
+using static System.Formats.Asn1.AsnWriter;
+public class Scene : MessagesRestreamer
 {
-    public class Scene
+    static Window  window;
+    private static Scene instance;
+    public Scene() 
     {
-        public List<GameObject.GameObject> GameObjects = new List<GameObject.GameObject>();
-
-        public void Instantiate(GameObject.GameObject obj)
-        {
-            GameObjects.Add(obj);
+        instance = this;
+        
+            window = new Window(640,480,60,"test",instance);
         }
+    static public List<GameObject> GameObjects
+    {
+        get=>instance.children.OfType<GameObject>().ToList();
+        set => instance.children = value.OfType<object>().ToList();
+    }
+    public static void Instantiate(GameObject obj)
+    { 
+        GameObjects.Add(obj);
+    }
+    public static void Start()
+    { 
+    }
+    public static void Update() 
+    {
+        window.Run();
     }
 }

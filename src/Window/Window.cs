@@ -1,58 +1,48 @@
 ﻿using System;
 using SFML.Graphics;
 using SFML.Window;
-
-namespace DustyEngine.Window
+public class Window
 {
-    public class Window
+    private Scene scene;
+    private RenderWindow window;
+    private uint width, height, fpsLimit;
+    private String title;
+
+    public Window(uint width,uint height,uint fpsLimit,String title,Scene scene)
     {
-        private Scene scene;
-        private RenderWindow window;
-        private uint width, height, fpsLimit;
-        private String title;
+        this.scene = scene;
+        this.width = width;
+        this.height = height;
+        this.fpsLimit = fpsLimit;
+        this.title = title;
+        CreateWindow();
+    }
 
-        public Window(uint width, uint height, uint fpsLimit, String title, Scene scene)
+    private void CreateWindow()
+    {
+        window = new RenderWindow(new VideoMode(width,height),title);
+        window.SetFramerateLimit(fpsLimit);
+        window.Closed += OnClosed;
+
+        
+    }
+
+    public void Run()
+    {
+        window.DispatchEvents();
+
+        window.Clear();
+
+        foreach(var gameObject in Scene.GameObjects)
         {
-            this.scene = scene;
-            this.width = width;
-            this.height = height;
-            this.fpsLimit = fpsLimit;
-            this.title = title;
-
-
-            System.Threading.Thread windowThread = new System.Threading.Thread(CreateWindow);
-            windowThread.Start();
+            gameObject.Draw(window);
         }
 
-        private void CreateWindow()
-        {
-            window = new RenderWindow(new VideoMode(width, height), title);
-            window.SetFramerateLimit(fpsLimit);
-            window.Closed += OnClosed;
+        window.Display();
+    }
 
-            Run();
-        }
-
-        private void Run()
-        {
-            while (window.IsOpen)
-            {
-                window.DispatchEvents();
-
-                window.Clear();
-
-                foreach (var gameObject in scene.GameObjects)
-                {
-                    gameObject.Draw(window);
-                }
-
-                window.Display();
-            }
-        }
-
-        private void OnClosed(object sender, EventArgs e)
-        {
-            window.Close();
-        }
+    private void OnClosed(object sender,EventArgs e)
+    {
+        window.Close();
     }
 }

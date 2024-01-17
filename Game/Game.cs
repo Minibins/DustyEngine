@@ -1,23 +1,15 @@
 ﻿using System;
-using DustyEngine;
-using DustyEngine.GameObject;
-using DustyEngine.Input;
 using SFML.Graphics;
 using SFML.System;
 using SFML.Window;
-using Window = DustyEngine.Window.Window;
 
 public class Game
 {
     public void Start()
-    {
-        Scene scene = new Scene();
-
-        Window  window = new Window(640, 480, 60, "test", scene);
-        
+    {        
         GameObject obj = new GameObject();
         
-         scene.Instantiate(obj);
+         Scene.Instantiate(obj);
          
          obj.color = Color.Green;
          
@@ -28,8 +20,8 @@ public class Game
          
          
          GameObject obj1 = new GameObject();
-        
-         scene.Instantiate(obj1);
+
+        Scene.Instantiate(obj1);
          
          obj1.color = Color.White;
          
@@ -44,9 +36,5 @@ public class Game
     public void Update()    
     {
 
-        if (Input.IsKeyPressed(Keyboard.Key.D))
-        {
-           Console.WriteLine("Pressed");
-        }
     }
 }

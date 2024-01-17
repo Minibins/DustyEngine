@@ -1,7 +1,4 @@
 ﻿using SFML.System;
-
-namespace DustyEngine.GameObject.Components
-{
     public class Transform
     {
         public Vector2f Position;
@@ -13,4 +10,3 @@ namespace DustyEngine.GameObject.Components
             Scale = scale;
         }
     }
-}
