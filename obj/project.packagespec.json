@@ -29,6 +29,10 @@
         "SFML.Net": {
           "target": "Package",
           "version": "[2.5.1, )"
+        },
+        "SFML.Window": {
+          "target": "Package",
+          "version": "[2.5.1, )"
         }
       },
       "imports": [

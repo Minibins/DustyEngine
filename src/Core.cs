@@ -1,17 +1,17 @@
-﻿using System;
-using System.Reflection;
-using System.Runtime.InteropServices;
-public class Core : MessagesRestreamer
+﻿public class Core : MessagesRestreamer
 {
     public Core()
     {
         children.Add(new Scene());
         children.Add(new Game());
 
+      
+        
         RestreamingMethod("Start");
         while(true)
         {
             RestreamingMethod("Update");
         }
+        
     }
 }

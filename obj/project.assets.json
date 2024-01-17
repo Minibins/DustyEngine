@@ -1021,30 +1021,29 @@
   },
   "projectFileDependencyGroups": {
     "net6.0": [
-      "SFML.Net >= 2.5.1"
+      "SFML.Net >= 2.5.1",
+      "SFML.Window >= 2.5.1"
     ]
   },
   "packageFolders": {
-    "C:\\Users\\Anton\\.nuget\\packages\\": {}
+    "C:\\Users\\Maks\\.nuget\\packages\\": {}
   },
   "project": {
     "version": "1.0.0",
     "restore": {
-      "projectUniqueName": "G:\\DustyMachine\\DustyEngine\\DustyEngine.csproj",
+      "projectUniqueName": "C:\\Project\\C#\\DustyEngine\\DustyEngine\\DustyEngine.csproj",
       "projectName": "DustyEngine",
-      "projectPath": "G:\\DustyMachine\\DustyEngine\\DustyEngine.csproj",
-      "packagesPath": "C:\\Users\\Anton\\.nuget\\packages\\",
-      "outputPath": "G:\\DustyMachine\\DustyEngine\\obj\\",
+      "projectPath": "C:\\Project\\C#\\DustyEngine\\DustyEngine\\DustyEngine.csproj",
+      "packagesPath": "C:\\Users\\Maks\\.nuget\\packages\\",
+      "outputPath": "C:\\Project\\C#\\DustyEngine\\DustyEngine\\obj\\",
       "projectStyle": "PackageReference",
       "configFilePaths": [
-        "C:\\Users\\Anton\\AppData\\Roaming\\NuGet\\NuGet.Config",
-        "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.Offline.config"
+        "C:\\Users\\Maks\\AppData\\Roaming\\NuGet\\NuGet.Config"
       ],
       "originalTargetFrameworks": [
         "net6.0"
       ],
       "sources": {
-        "C:\\Program Files (x86)\\Microsoft SDKs\\NuGetPackages\\": {},
         "https://api.nuget.org/v3/index.json": {}
       },
       "frameworks": {
@@ -1066,6 +1065,10 @@
           "SFML.Net": {
             "target": "Package",
             "version": "[2.5.1, )"
+          },
+          "SFML.Window": {
+            "target": "Package",
+            "version": "[2.5.1, )"
           }
         },
         "imports": [
@@ -1084,7 +1087,7 @@
             "privateAssets": "all"
           }
         },
-        "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\8.0.101\\RuntimeIdentifierGraph.json"
+        "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\6.0.418\\RuntimeIdentifierGraph.json"
       }
     }
   }

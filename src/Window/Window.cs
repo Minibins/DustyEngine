@@ -3,46 +3,49 @@ using SFML.Graphics;
 using SFML.Window;
 public class Window
 {
-    private Scene scene;
-    private RenderWindow window;
+    private RenderWindow renderWindow;
     private uint width, height, fpsLimit;
     private String title;
 
-    public Window(uint width,uint height,uint fpsLimit,String title,Scene scene)
+    public Window(uint width,uint height,uint fpsLimit,String title)
     {
-        this.scene = scene;
         this.width = width;
         this.height = height;
         this.fpsLimit = fpsLimit;
         this.title = title;
-        CreateWindow();
+
+        System.Threading.Thread windowThread = new System.Threading.Thread(CreateWindow);
+        windowThread.Start();
     }
 
     private void CreateWindow()
     {
-        window = new RenderWindow(new VideoMode(width,height),title);
-        window.SetFramerateLimit(fpsLimit);
-        window.Closed += OnClosed;
-
+        renderWindow = new RenderWindow(new VideoMode(width,height),title);
+        renderWindow.SetFramerateLimit(fpsLimit);
+        renderWindow.Closed += OnClosed;
         
+        Run();
     }
 
-    public void Run()
+    private void Run()
     {
-        window.DispatchEvents();
-
-        window.Clear();
-
-        foreach(var gameObject in Scene.GameObjects)
+        while (true)
         {
-            if(gameObject.GetType() == typeof(GameObject)) (gameObject as GameObject).Draw(window);
+            renderWindow.DispatchEvents();
+
+            renderWindow.Clear();
+
+            foreach(var gameObject in Scene.GameObjects)
+            {
+                if(gameObject.GetType() == typeof(GameObject)) (gameObject as GameObject).Draw(renderWindow);
             }
 
-        window.Display();
+            renderWindow.Display();
+        }
     }
 
     private void OnClosed(object sender,EventArgs e)
     {
-        window.Close();
+        renderWindow.Close();
     }
 }

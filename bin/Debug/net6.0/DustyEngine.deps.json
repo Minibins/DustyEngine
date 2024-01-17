@@ -8,7 +8,8 @@
     ".NETCoreApp,Version=v6.0": {
       "DustyEngine/1.0.0": {
         "dependencies": {
-          "SFML.Net": "2.5.1"
+          "SFML.Net": "2.5.1",
+          "SFML.Window": "2.5.1"
         },
         "runtime": {
           "DustyEngine.dll": {}
