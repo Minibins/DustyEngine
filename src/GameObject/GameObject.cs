@@ -20,7 +20,7 @@ public class GameObject : MessagesRestreamer
         Velocity = new Vector2f(0, 0);
     }
 
-    public void UpdateObj()
+    public void Update()
     {
         Shape.Position = transform.Position;
         Shape.Size = transform.Scale;
