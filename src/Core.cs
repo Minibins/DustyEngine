@@ -1,5 +1,4 @@
 ﻿using System;
-
 public class Core : MessagesRestreamer
 {
 
@@ -7,8 +6,21 @@ public class Core : MessagesRestreamer
     {
         children.Add(new Scene());
         children.Add(new Game());
-        
+
         RestreamingMethod("Start");
+        Task.Run(async () => FixedUpdate());
+        Task.Run(async ()=> Update());
+    }
+    async void FixedUpdate()
+    {
+        while(true)
+        {
+            await Task.Delay(10);
+            RestreamingMethod("FixedUpdate");
+        }
+    }
+    void Update()
+    {
         while(true)
         {
             RestreamingMethod("Update");

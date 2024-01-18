@@ -9,10 +9,16 @@ public class Scene : MessagesRestreamer
         instance = this;
     }
 
-    public static List<object> GameObjects => instance.children;
+    public static List<GameObject> GameObjects
+    {
+        get 
+        {
+            return instance.children.OfType<GameObject>().ToList();
+        }
+    }
 
     public static void Instantiate(GameObject obj)
     {
-        GameObjects.Add(obj);
+        instance.children.Add(obj);
     }
 }

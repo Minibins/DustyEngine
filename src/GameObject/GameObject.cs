@@ -9,7 +9,13 @@ public class GameObject : MessagesRestreamer
     public Transform transform = new Transform(new Vector2f(100, 100), new Vector2f(50, 50));
 
     public Color color = Color.Blue;
-
+    public List<Component> Components
+    {
+        get
+        {
+            return children.OfType<Component>().ToList();
+        }
+    }
     public GameObject()
     {
         Shape = new RectangleShape(transform.Scale)
@@ -30,5 +36,10 @@ public class GameObject : MessagesRestreamer
     public void Draw(RenderWindow window)
     {
         window.Draw(Shape);
+    }
+    public void AddComponent(Component component)
+    {
+        children.Add(component);
+        component.GameObject = this;
     }
 }
