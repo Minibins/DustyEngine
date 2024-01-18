@@ -14,7 +14,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("DustyEngine")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+0b971344329df40acd60ae6e9331f04c5a7e3f54")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+8e52c2a7ea8c52d28c1eac7930c2c54c57201bd3")]
 [assembly: System.Reflection.AssemblyProductAttribute("DustyEngine")]
 [assembly: System.Reflection.AssemblyTitleAttribute("DustyEngine")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]
