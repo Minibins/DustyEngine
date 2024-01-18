@@ -4,9 +4,12 @@ public class Scene : MessagesRestreamer
 {
     private static Scene instance;
 
-    public Scene()
+    public Scene(string file)
     {
+        if(!file.EndsWith(".scen")) throw new Exception("Пошёл в жопу со своим " + file + " Я принимаю только .scen");
+        
         instance = this;
+        List<string> lines = FileReader.Read(file);
     }
 
     public static List<GameObject> GameObjects

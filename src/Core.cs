@@ -4,7 +4,7 @@ public class Core : MessagesRestreamer
 
     public Core()
     {
-        children.Add(new Scene());
+        children.Add(new Scene("C:/Users/Anton/Searches/Desktop/scene.scen"));
         children.Add(new Game());
 
         RestreamingMethod("Start");
