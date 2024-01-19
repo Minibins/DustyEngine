@@ -7,7 +7,7 @@ using System.Linq;
 public static class FileReader
 {
     private static readonly char[] s_mergeMarkers = {'}', '{', ','};
-    private static readonly char s_regionStarter = '{', _regionEnder = '}', s_regionContinuer = ',';
+    private static readonly char s_regionStarter = '{', s_regionEnder = '}', s_regionContinuer = ',';
 
     public static List<string> Read(string file)
     {
