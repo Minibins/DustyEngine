@@ -5,9 +5,9 @@ public class Core : MessagesRestreamer
     public Core()
     {
       //  _children.Add(new Scene("C:/Users/Anton/Searches/Desktop/scene.scen"));
-        _children.Add(new Scene("C:/Users/Maks/Desktop/scene.scen"));
+        Children.Add(new Scene("C:/Users/Maks/Desktop/scene.scen"));
 
-        _children.Add(new Game());
+        Children.Add(new Game());
 
         RestreamingMethod("Start");
         Task.Run(async () => FixedUpdate());
