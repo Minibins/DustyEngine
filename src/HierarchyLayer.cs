@@ -3,14 +3,14 @@ using System.Reflection;
 
 public abstract class HierarchyLayer
 {
-    protected List<object> children = new List<object>();
+    protected List<object> _children = new List<object>();
 }
 
 public abstract class MessagesRestreamer : HierarchyLayer
 {
     public void RestreamingMethod(string name)
     {
-        foreach (var child in children)
+        foreach (var child in _children)
         {
             MethodInfo[] methods = child.GetType().GetMethods();
             foreach (var method in methods)

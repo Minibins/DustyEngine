@@ -1,31 +1,34 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+
+
 public static class FileReader
 {
-    static readonly char[] mergeMarkers = { '}', '{', ','};
-    static readonly char regionStarter = '{', regionEnder = '}', regionContinuer = ',';
+    private static readonly char[] _mergeMarkers = {'}', '{', ','};
+    private static readonly char _regionStarter = '{', _regionEnder = '}', _regionContinuer = ',';
+
     public static List<string> Read(string file)
     {
-        List<string> lines = File.ReadAllLines(file).ToList();
-        List<string> lines2 = new List<string>();
-        foreach(string line in lines)
+        List<string> _lines = File.ReadAllLines(file).ToList();
+        List<string> _lines2 = new List<string>();
+        foreach (string line in _lines)
         {
-            if(line.Length == 0) continue;
-            if(mergeMarkers.Any<char>(c => line.StartsWith(c))&&lines2.Count!=0)
+            if (line.Length == 0) continue;
+            if (_mergeMarkers.Any<char>(c => line.StartsWith(c)) && _lines2.Count != 0)
             {
-                lines2[lines2.Count-1]+=line;
+                _lines2[_lines2.Count - 1] += line;
             }
             else
             {
-                lines2.Add(line);
+                _lines2.Add(line);
             }
         }
-        lines.Clear();
-        foreach(string line in lines2)
+
+        _lines.Clear();
+        foreach (string line in _lines2)
             Console.WriteLine(line);
-        return lines2;
+        return _lines2;
     }
 }

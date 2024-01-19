@@ -1,34 +1,29 @@
-﻿using System;
-using SFML.Graphics;
+﻿using SFML.Graphics;
 using SFML.System;
-using SFML.Window;
 
 public class Game  
 {
-    private GameObject obj;
+    private GameObject _player;
     
     public void Start()
     {
-        obj = new GameObject();
+        _player = new GameObject();
         
-        Scene.Instantiate(obj);
+        Scene.Instantiate(_player);
 
-        obj.color = Color.Green;
+        _player.Color = Color.Green;
 
-        obj.transform.Position = new Vector2f(50, 350);
-        obj.transform.Scale = new Vector2f(50, 50);
-        obj.AddComponent(new CharacterController(4f));
+        _player.Transform.Position = new Vector2f(50, 350);
+        _player.Transform.Scale = new Vector2f(50, 50);
+        _player.AddComponent(new CharacterController(4f));
 
-        GameObject obj1 = new GameObject();
+        GameObject platform = new GameObject();
 
-        Scene.Instantiate(obj1);
+        Scene.Instantiate(platform);
 
-        obj1.color = Color.White;
+        platform.Color = Color.White;
 
-        obj1.transform.Position = new Vector2f(20, 400);
-        obj1.transform.Scale = new Vector2f(600, 50);
+        platform.Transform.Position = new Vector2f(20, 400);
+        platform.Transform.Scale = new Vector2f(600, 50);
     }
-
-
-    
 }

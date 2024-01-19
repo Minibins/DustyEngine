@@ -4,16 +4,16 @@ using SFML.Window;
 
 public class Window
 {
-    private RenderWindow renderWindow;
-    private uint width, height, fpsLimit;
-    private String title;
+    private RenderWindow _renderWindow;
+    private uint _width, _height, _fpsLimit;
+    private String _title;
 
-    public Window(uint width, uint height, uint fpsLimit, String title)
+    public Window(uint _width, uint _height, uint _fpsLimit, String _title)
     {
-        this.width = width;
-        this.height = height;
-        this.fpsLimit = fpsLimit;
-        this.title = title;
+        this._width = _width;
+        this._height = _height;
+        this._fpsLimit = _fpsLimit;
+        this._title = _title;
 
         System.Threading.Thread windowThread = new System.Threading.Thread(CreateWindow);
         windowThread.Start();
@@ -21,32 +21,32 @@ public class Window
 
     private void CreateWindow()
     {
-        renderWindow = new RenderWindow(new VideoMode(width, height), title);
-        renderWindow.SetFramerateLimit(fpsLimit);
-        renderWindow.Closed += OnClosed;
+        _renderWindow = new RenderWindow(new VideoMode(_width, _height), _title);
+        _renderWindow.SetFramerateLimit(_fpsLimit);
+        _renderWindow.Closed += OnClosed;
 
-        Run();
+        RunWindow();
     }
 
-    private void Run()
+    private void RunWindow()
     {
         while (true)
         {
-            renderWindow.DispatchEvents();
+            _renderWindow.DispatchEvents();
 
-            renderWindow.Clear();
+            _renderWindow.Clear();
 
-            foreach (var gameObject in Scene.GameObjects)
+            foreach (var _gameObject in Scene.GameObjects)
             {
-                if (gameObject.GetType() == typeof(GameObject)) (gameObject as GameObject).Draw(renderWindow);
+                if (_gameObject.GetType() == typeof(GameObject)) (_gameObject as GameObject).Draw(_renderWindow);
             }
 
-            renderWindow.Display();
+            _renderWindow.Display();
         }
     }
 
     private void OnClosed(object sender, EventArgs e)
     {
-        renderWindow.Close();
+        _renderWindow.Close();
     }
 }

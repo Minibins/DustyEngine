@@ -26,6 +26,10 @@
   "frameworks": {
     "netcoreapp6.0": {
       "dependencies": {
+        "SFML.Audio": {
+          "target": "Package",
+          "version": "[2.5.1, )"
+        },
         "SFML.Net": {
           "target": "Package",
           "version": "[2.5.1, )"

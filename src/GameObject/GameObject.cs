@@ -1,4 +1,6 @@
-﻿using SFML.Graphics;
+﻿using System.Collections.Generic;
+using System.Linq;
+using SFML.Graphics;
 using SFML.System;
 
 public class GameObject : MessagesRestreamer
@@ -6,31 +8,31 @@ public class GameObject : MessagesRestreamer
     public RectangleShape Shape { get; set; }
     public Vector2f Velocity { get; set; }
 
-    public Transform transform = new Transform(new Vector2f(100, 100), new Vector2f(50, 50));
+    public Transform Transform = new Transform(new Vector2f(100, 100), new Vector2f(50, 50));
 
-    public Color color = Color.Blue;
+    public Color Color = Color.Blue;
     public List<Component> Components
     {
         get
         {
-            return children.OfType<Component>().ToList();
+            return _children.OfType<Component>().ToList();
         }
     }
     public GameObject()
     {
-        Shape = new RectangleShape(transform.Scale)
+        Shape = new RectangleShape(Transform.Scale)
         {
-            Position = transform.Position,
-            FillColor = color
+            Position = Transform.Position,
+            FillColor = Color
         };
         Velocity = new Vector2f(0, 0);
     }
 
     public void Update()
     {
-        Shape.Position = transform.Position;
-        Shape.Size = transform.Scale;
-        Shape.FillColor = color;
+        Shape.Position = Transform.Position;
+        Shape.Size = Transform.Scale;
+        Shape.FillColor = Color;
     }
     
     public void Draw(RenderWindow window)
@@ -39,7 +41,7 @@ public class GameObject : MessagesRestreamer
     }
     public void AddComponent(Component component)
     {
-        children.Add(component);
+        _children.Add(component);
         component.GameObject = this;
     }
 }
