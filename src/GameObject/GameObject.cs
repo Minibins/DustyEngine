@@ -15,7 +15,7 @@ public class GameObject : MessagesRestreamer
     {
         get
         {
-            return _children.OfType<Component>().ToList();
+            return Children.OfType<Component>().ToList();
         }
     }
     public GameObject()
@@ -41,7 +41,7 @@ public class GameObject : MessagesRestreamer
     }
     public void AddComponent(Component component)
     {
-        _children.Add(component);
+        Children.Add(component);
         component.GameObject = this;
     }
 }

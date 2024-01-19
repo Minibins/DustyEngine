@@ -6,8 +6,8 @@ using System.Linq;
 
 public static class FileReader
 {
-    private static readonly char[] _mergeMarkers = {'}', '{', ','};
-    private static readonly char _regionStarter = '{', _regionEnder = '}', _regionContinuer = ',';
+    private static readonly char[] s_mergeMarkers = {'}', '{', ','};
+    private static readonly char s_regionStarter = '{', _regionEnder = '}', s_regionContinuer = ',';
 
     public static List<string> Read(string file)
     {
@@ -16,7 +16,7 @@ public static class FileReader
         foreach (string line in _lines)
         {
             if (line.Length == 0) continue;
-            if (_mergeMarkers.Any<char>(c => line.StartsWith(c)) && _lines2.Count != 0)
+            if (s_mergeMarkers.Any<char>(c => line.StartsWith(c)) && _lines2.Count != 0)
             {
                 _lines2[_lines2.Count - 1] += line;
             }
