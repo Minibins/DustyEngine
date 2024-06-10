@@ -17,11 +17,11 @@ public class CharacterController : Component
     {
         if(Input.IsKeyPressed(Keyboard.Key.D))
         {
-            GameObject.transform.Position = new Vector2f(GameObject.transform.Position.X += speed,350);
+            Object.transform.Position = new Vector2f(Object.transform.Position.X += speed,350);
         }
         if(Input.IsKeyPressed(Keyboard.Key.A))
         {
-            GameObject.transform.Position = new Vector2f(GameObject.transform.Position.X -= speed,350);
+            Object.transform.Position = new Vector2f(Object.transform.Position.X -= speed,350);
         }
     }
 }

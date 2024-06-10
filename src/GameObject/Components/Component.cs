@@ -1,15 +1,15 @@
 ﻿
 public class Component
 {
-    private GameObject gameObject;
+    private Object _object;
 
-    public GameObject GameObject
+    public Object Object
     {
-        get => gameObject;
+        get => _object;
         set
         {
-            if(gameObject!=null) gameObject.Components.Remove(this);
-            gameObject = value;
+            if(_object!=null) _object.Components.Remove(this);
+            _object = value;
         }
     }
 }

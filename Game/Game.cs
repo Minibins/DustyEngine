@@ -9,26 +9,23 @@ public class Game
     
     public void Start()
     {
-        obj = new GameObject();
+        obj = new();
         
         Scene.Instantiate(obj);
 
         obj.color = Color.Green;
 
-        obj.transform.Position = new Vector2f(50, 350);
-        obj.transform.Scale = new Vector2f(50, 50);
+        obj.transform.Position = new(50, 350, 0);
+        obj.transform.Scale = new(50, 50, 0);
         obj.AddComponent(new CharacterController(4f));
 
-        GameObject obj1 = new GameObject();
+        GameObject obj1 = new();
 
         Scene.Instantiate(obj1);
 
         obj1.color = Color.White;
 
-        obj1.transform.Position = new Vector2f(20, 400);
-        obj1.transform.Scale = new Vector2f(600, 50);
+        obj1.transform.Position = new(20, 400, 0);
+        obj1.transform.Scale = new(600, 50, 0);
     }
-
-
-    
 }
