@@ -3,8 +3,8 @@
 /workspace.xml
 # Rider ignored files
 /modules.xml
-/.idea.DustyEngine.iml
 /contentModel.xml
+/.idea.DustyEngine.iml
 /projectSettingsUpdater.xml
 # Editor-based HTTP Client requests
 /httpRequests/
