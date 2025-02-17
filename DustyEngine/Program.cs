@@ -19,27 +19,36 @@ internal class Program
                 new GameObject
                 {
                     Name = "TestGameObject0",
+                    IsActive = true,
                     Children =
                     {
                         new GameObject
                         {
                             Name = "TestGameObject2",
-                            Components = {new TestComponent
+                            IsActive = true,
+                            Components =
                             {
-                                TestNumber = 20,
-                                TestString = "Hello World"
-                            }}
+                                new TestComponent
+                                {
+                                    TestNumber = 20,
+                                    TestString = "Hello World"
+                                }
+                            }
                         }
                     },
-                    Components = {new TestComponent
+                    Components =
                     {
-                        TestNumber = 20,
-                        TestString = "Hello World"
-                    }}
+                        new TestComponent
+                        {
+                            TestNumber = 20,
+                            TestString = "Hello World"
+                        }
+                    }
                 },
                 new GameObject
                 {
                     Name = "TestGameObject1",
+                    IsActive = true,
                 },
             },
             Components = new List<Component>
@@ -53,7 +62,7 @@ internal class Program
         };
 
         string fileName = scene.Name + ".json";
-        
+
         string jsonString = JsonSerializer.Serialize(scene, new JsonSerializerOptions
         {
             WriteIndented = true,
@@ -70,7 +79,7 @@ internal class Program
         File.WriteAllText(fileName, jsonString);
 
         Console.WriteLine("\nRead from file:\n" + File.ReadAllText(fileName));
-        
+
         Scene loadedScene = JsonSerializer.Deserialize<Scene>(jsonString, new JsonSerializerOptions
         {
             WriteIndented = true,
@@ -81,28 +90,49 @@ internal class Program
                 new SceneConverter()
             }
         });
-
-        Console.WriteLine(loadedScene.GameObjects[0].Children[0].Parent.Name);
+        
+        
+     
+        void InvokeStartRecursive(GameObject gameObject)
+        {
+            if (gameObject.IsActive)
+            {
+               gameObject.InvokeMethodInComponents("OnEnable");
+               gameObject.InvokeMethodInComponents("Start");
+            }
+            foreach (var child in gameObject.Children)
+            {
+                InvokeStartRecursive(child);
+            }
+        }
+        
+        foreach (var gameObject in loadedScene.GameObjects)
+        {
+            InvokeStartRecursive(gameObject);
+        }
+        loadedScene.GameObjects[0].IsActive = false;
+        loadedScene.GameObjects[0].IsActive = true;
     }
 }
-
-public class GameObject
-{
-    public string Name { get; set; }
-    public List<GameObject> Children { get; set; } = new List<GameObject>();
-    public List<Component> Components { get; set; } = new List<Component>();
-
-    [JsonIgnore] public GameObject Parent { get; set; }
-}
-
-
 
 
 public class TestComponent : Component
 {
     public int TestNumber { get; set; }
     public string TestString { get; set; }
+
+    public void OnEnable()
+    {
+        Console.WriteLine(TestNumber);
+    }
+
+    public void OnDisable()
+    {
+        Console.WriteLine("Disable");
+    }
+
+    public void Start()
+    {
+        Console.WriteLine(TestString);
+    }
 }
-
-
-

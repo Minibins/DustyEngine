@@ -44,7 +44,21 @@ public class SceneConverter : JsonConverter<Scene.Scene>
                 gameObject.Name = nameElement.GetString();
             }
 
+            if (objElement.TryGetProperty("IsActive", out var isActiveElement))
+            {
+                gameObject.IsActive = isActiveElement.GetBoolean();
+            }
+
             gameObject.Parent = parent;
+
+            // Добавляем кастомный конвертер для десериализации компонентов
+            if (objElement.TryGetProperty("Components", out var componentsElement))
+            {
+                var options = new JsonSerializerOptions();
+                options.Converters.Add(new ComponentConverter());
+
+                gameObject.Components = JsonSerializer.Deserialize<List<Component>>(componentsElement.GetRawText(), options);
+            }
 
             if (objElement.TryGetProperty("Children", out var childrenElement))
             {
@@ -56,6 +70,8 @@ public class SceneConverter : JsonConverter<Scene.Scene>
 
         return gameObjects;
     }
+
+
 
     public override void Write(Utf8JsonWriter writer, Scene.Scene value, JsonSerializerOptions options)
     {
