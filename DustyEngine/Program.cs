@@ -21,9 +21,19 @@ internal class Program
                     {
                         new GameObject
                         {
-                            Name = "TestGameObject2"
+                            Name = "TestGameObject2",
+                            Components = {new TestComponent
+                            {
+                                TestNumber = 20,
+                                TestString = "Hello World"
+                            }}
                         }
                     },
+                    Components = {new TestComponent
+                    {
+                        TestNumber = 20,
+                        TestString = "Hello World"
+                    }}
                 },
                 new GameObject
                 {
@@ -41,7 +51,7 @@ internal class Program
         };
 
         string fileName = scene.Name + ".json";
-
+        
         string jsonString = JsonSerializer.Serialize(scene, new JsonSerializerOptions
         {
             WriteIndented = true,
@@ -58,8 +68,7 @@ internal class Program
         File.WriteAllText(fileName, jsonString);
 
         Console.WriteLine("\nRead from file:\n" + File.ReadAllText(fileName));
-
-        // Десериализация
+        
         Scene loadedScene = JsonSerializer.Deserialize<Scene>(jsonString, new JsonSerializerOptions
         {
             WriteIndented = true,
@@ -79,6 +88,7 @@ public class GameObject
 {
     public string Name { get; set; }
     public List<GameObject> Children { get; set; } = new List<GameObject>();
+    public List<Component> Components { get; set; } = new List<Component>();
 
     [JsonIgnore] public GameObject Parent { get; set; }
 }
