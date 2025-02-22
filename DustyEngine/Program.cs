@@ -1,138 +1,226 @@
-﻿using System.Text.Json;
-using System.Text.Json.Serialization;
+﻿using System.Diagnostics;
+using System.Reflection;
+using System.Text.Json;
 using DustyEngine.Components;
 using DustyEngine.Json.Converters;
-using DustyEngine.Scene;
-using JsonSerializer = System.Text.Json.JsonSerializer;
 
-internal class Program
+namespace DustyEngine
 {
-    private static Scene scene;
-
-    static void Main(string[] args)
+    internal class Program
     {
-        scene = new Scene
+        private static Scene.Scene s_scene;
+
+        static void Main(string[] args)
         {
-            Name = "DustyEngineTestScene",
-            GameObjects = new List<GameObject>
+            s_scene = new Scene.Scene
             {
-                new GameObject
+                Name = "DustyEngineTestScene",
+                GameObjects = new List<GameObject>
                 {
-                    Name = "TestGameObject0",
-                    IsActive = true,
-                    Children =
+                    new GameObject
                     {
-                        new GameObject
+                        Name = "TestGameObject0",
+                        IsActive = true,
+                        Children =
                         {
-                            Name = "TestGameObject2",
-                            IsActive = true,
-                            Components =
+                            new GameObject
                             {
-                                new TestComponent
+                                Name = "TestGameObject2",
+                                IsActive = true,
+                                Components =
                                 {
-                                    TestNumber = 20,
-                                    TestString = "Hello World"
+                                    new TestComponent
+                                    {
+                                        TestNumber = 20,
+                                        TestString = "Hello World",
+                                        IsActive = true,
+                                    }
                                 }
+                            }
+                        },
+                        Components =
+                        {
+                            new TestComponent
+                            {
+                                TestNumber = 20,
+                                TestString = "Hello World",
+                                IsActive = true,
                             }
                         }
                     },
-                    Components =
+                    new GameObject
                     {
-                        new TestComponent
-                        {
-                            TestNumber = 20,
-                            TestString = "Hello World"
-                        }
-                    }
+                        Name = "TestGameObject1",
+                        IsActive = true,
+                    },
                 },
-                new GameObject
-                {
-                    Name = "TestGameObject1",
-                    IsActive = true,
-                },
-            },
-            Components = new List<Component>
+            };
+
+            string fileName = s_scene.Name + ".json";
+
+            string jsonString = JsonSerializer.Serialize(s_scene, new JsonSerializerOptions
             {
-                new TestComponent()
+                WriteIndented = true,
+                IncludeFields = true,
+                Converters =
                 {
-                    TestNumber = 0,
-                    TestString = "TestString"
+                    new ComponentConverter(),
+                    new SceneConverter()
                 }
-            },
-        };
+            });
 
-        string fileName = scene.Name + ".json";
+            Console.WriteLine("Serialized JSON:\n" + jsonString);
 
-        string jsonString = JsonSerializer.Serialize(scene, new JsonSerializerOptions
-        {
-            WriteIndented = true,
-            IncludeFields = true,
-            Converters =
+            File.WriteAllText(fileName, jsonString);
+
+            Console.WriteLine("\nRead from file:\n" + File.ReadAllText(fileName));
+
+            Scene.Scene loadedScene = JsonSerializer.Deserialize<Scene.Scene>(jsonString, new JsonSerializerOptions
             {
-                new ComponentConverter(),
-                new SceneConverter()
-            }
-        });
+                WriteIndented = true,
+                IncludeFields = true,
+                Converters =
+                {
+                    new ComponentConverter(),
+                    new SceneConverter()
+                }
+            });
 
-        Console.WriteLine("Serialized JSON:\n" + jsonString);
-
-        File.WriteAllText(fileName, jsonString);
-
-        Console.WriteLine("\nRead from file:\n" + File.ReadAllText(fileName));
-
-        Scene loadedScene = JsonSerializer.Deserialize<Scene>(jsonString, new JsonSerializerOptions
-        {
-            WriteIndented = true,
-            IncludeFields = true,
-            Converters =
+            foreach (var gameObject in s_scene.GameObjects)
             {
-                new ComponentConverter(),
-                new SceneConverter()
+                InvokeStartRecursive(gameObject);
             }
-        });
-        
-        
-     
-        void InvokeStartRecursive(GameObject gameObject)
+
+
+            Task.Run(() => ExecuteFixedUpdateLoop(s_scene));
+                       ExecuteUpdateLoop(s_scene);
+            Console.ReadLine();
+            //   loadedScene.GameObjects[0].IsActive = false;
+            //   loadedScene.GameObjects[0].IsActive = true;
+            //   loadedScene.GameObjects[0].Components[0].IsActive = false;
+            //    loadedScene.GameObjects[0].Components[0].IsActive = true;
+        }
+
+        private static void InvokeStartRecursive(GameObject gameObject)
         {
+            gameObject.InitComponents();
+
             if (gameObject.IsActive)
             {
-               gameObject.InvokeMethodInComponents("OnEnable");
-               gameObject.InvokeMethodInComponents("Start");
+                gameObject.InvokeMethodInComponents("OnEnable");
+                gameObject.InvokeMethodInComponents("Start");
             }
+
             foreach (var child in gameObject.Children)
             {
                 InvokeStartRecursive(child);
             }
         }
-        
-        foreach (var gameObject in loadedScene.GameObjects)
+
+        private static void ExecuteUpdateLoop(Scene.Scene scene)
         {
-            InvokeStartRecursive(gameObject);
+            while (true)
+            {
+                foreach (var gameObject in scene.GameObjects ?? Enumerable.Empty<GameObject>())
+                {
+                    if (!gameObject.IsActive) continue;
+                    foreach (var component in gameObject.Components ?? Enumerable.Empty<Component>())
+                    {
+                        var updateMethod = component.GetType().GetMethod("Update",
+                            BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic);
+                        updateMethod?.Invoke(component, null);
+                    }
+                }
+            }
         }
-        loadedScene.GameObjects[0].IsActive = false;
-        loadedScene.GameObjects[0].IsActive = true;
+
+        private static void ExecuteFixedUpdateLoop(Scene.Scene scene)
+        {
+            var targetElapsedTime = TimeSpan.FromMilliseconds(1);
+            var accumulator = TimeSpan.Zero;
+            var previousTime = DateTime.Now;
+
+            while (true)
+            {
+                var currentTime = DateTime.Now;
+                var frameTime = currentTime - previousTime;
+                previousTime = currentTime;
+
+                accumulator += frameTime;
+
+                while (accumulator >= targetElapsedTime)
+                {
+                    foreach (var gameObject in scene.GameObjects)
+                    {
+                        if (gameObject.IsActive)
+                        {
+                            foreach (var component in gameObject.Components)
+                            {
+                                var fixedUpdateMethod = component.GetType().GetMethod("FixedUpdate");
+                                fixedUpdateMethod?.Invoke(component, null);
+                            }
+                        }
+                    }
+
+                    accumulator -= targetElapsedTime;
+                }
+                Thread.Sleep(0);
+            }
+        }
     }
 }
-
 
 public class TestComponent : Component
 {
     public int TestNumber { get; set; }
     public string TestString { get; set; }
+    private int i = 0;
+    private int b = 0;
+    private DateTime lastUpdateTime;
+    private DateTime lastFixedUpdateTime;
 
     public void OnEnable()
     {
-        Console.WriteLine(TestNumber);
+        lastUpdateTime = DateTime.Now;
+        lastFixedUpdateTime = DateTime.Now;
+        Console.WriteLine("Execute OnEnable on:" + Parent.Name + " " + GetType().Name);
+        Parent.GetComponent<TestComponent>()?.TestMethod();
+    }
+
+    public void TestMethod()
+    {
+        Console.WriteLine("Execute TestMethod on:" + Parent.Name + " " + GetType().Name);
     }
 
     public void OnDisable()
     {
-        Console.WriteLine("Disable");
+        Console.WriteLine("Execute OnDisable on:" + Parent.Name + " " + GetType().Name);
     }
 
     public void Start()
     {
-        Console.WriteLine(TestString);
+        Console.WriteLine("Execute Start on:" + Parent.Name + " " + GetType().Name);
+    }
+
+    public void Update()
+    {
+        TimeSpan timeSinceLastUpdate = DateTime.Now - lastUpdateTime;
+
+        // Обновляем время последнего запуска
+        lastUpdateTime = DateTime.Now;
+        i++;
+       // Console.WriteLine(
+      //S      $"Execute Update on: {Parent.Name} {GetType().Name} {i} (Time since last update: {timeSinceLastUpdate.TotalMilliseconds:F2} ms)");
+    }
+
+    public void FixedUpdate()
+    {
+        TimeSpan timeSinceLastFixedUpdate = DateTime.Now - lastFixedUpdateTime;
+        
+        // Обновляем время последнего вызова FixedUpdate
+        lastFixedUpdateTime = DateTime.Now;
+        b++;
+        Console.WriteLine(
+            $"Execute FixedUpdate on: {Parent.Name} {GetType().Name} {b} (Time since last fixed update: {timeSinceLastFixedUpdate.TotalMilliseconds:F2} ms)");
     }
 }

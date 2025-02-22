@@ -12,8 +12,8 @@ public class GameObject
         get { return _isActive; }
         set
         {
-            InvokeMethodInComponents(value ? "OnEnable": "OnDisable");
-            Console.WriteLine(value);
+            InvokeMethodInComponents(value ? "OnEnable" : "OnDisable");
+            Console.WriteLine(Name + " is: " + value); // Debug
             _isActive = value;
         }
     }
@@ -24,6 +24,19 @@ public class GameObject
     [JsonIgnore] public GameObject Parent { get; set; }
 
 
+    public void InitComponents()
+    {
+        foreach (var component in Components)
+        {
+            component.Parent = this;
+        }
+    }
+    
+    public T? GetComponent<T>() where T : Component
+    {
+        return Components.OfType<T>().FirstOrDefault();
+    }
+
     public void InvokeMethodInComponents(string methodName)
     {
         //  Console.WriteLine($"{Name} has {Components?.Count ?? 0} components.");
@@ -33,7 +46,7 @@ public class GameObject
             var startMethod = component.GetType().GetMethod(methodName,
                 BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic);
             startMethod?.Invoke(component, null);
-          //  Console.WriteLine($"Executed {component.GetType().Name}.{methodName} on {Name}");
+            //  Console.WriteLine($"Executed {component.GetType().Name}.{methodName} on {Name}");
         }
     }
 }
