@@ -29,12 +29,6 @@ namespace DustyEngine
                                 IsActive = true,
                                 Components =
                                 {
-                                    new TestComponent
-                                    {
-                                        TestNumber = 20,
-                                        TestString = "Hello World",
-                                        IsActive = true,
-                                    }
                                 }
                             }
                         },
@@ -86,25 +80,25 @@ namespace DustyEngine
                 }
             });
 
+
             foreach (var gameObject in s_scene.GameObjects)
             {
                 InvokeStartRecursive(gameObject);
             }
 
 
+            loadedScene.GameObjects[0].Components[0].SetActive(false);
+            loadedScene.GameObjects[0].SeActive(false);
+            loadedScene.GameObjects[0].Components[0].SetActive(true);
+            loadedScene.GameObjects[0].SeActive(true);
+
             Task.Run(() => ExecuteFixedUpdateLoop(s_scene));
-                       ExecuteUpdateLoop(s_scene);
-            Console.ReadLine();
-            //   loadedScene.GameObjects[0].IsActive = false;
-            //   loadedScene.GameObjects[0].IsActive = true;
-            //   loadedScene.GameObjects[0].Components[0].IsActive = false;
-            //    loadedScene.GameObjects[0].Components[0].IsActive = true;
+            ExecuteUpdateLoop(s_scene);
         }
 
+        
         private static void InvokeStartRecursive(GameObject gameObject)
         {
-            gameObject.InitComponents();
-
             if (gameObject.IsActive)
             {
                 gameObject.InvokeMethodInComponents("OnEnable");
@@ -164,6 +158,7 @@ namespace DustyEngine
 
                     accumulator -= targetElapsedTime;
                 }
+
                 Thread.Sleep(0);
             }
         }
@@ -183,8 +178,16 @@ public class TestComponent : Component
     {
         lastUpdateTime = DateTime.Now;
         lastFixedUpdateTime = DateTime.Now;
-        Console.WriteLine("Execute OnEnable on:" + Parent.Name + " " + GetType().Name);
-        Parent.GetComponent<TestComponent>()?.TestMethod();
+        // if (Parent == null)
+        // {
+        //     Console.WriteLine("Parent is still null in OnEnable.");
+        // }
+        // else
+        // {
+        //     Console.WriteLine("Parent is set: " + Parent.Name);
+        // }
+        Console.WriteLine("Execute OnEnable on: " + Parent.Name + " on " + GetType().Name);
+        //  Parent.GetComponent<TestComponent>()?.TestMethod();
     }
 
     public void TestMethod()
@@ -209,18 +212,18 @@ public class TestComponent : Component
         // Обновляем время последнего запуска
         lastUpdateTime = DateTime.Now;
         i++;
-       // Console.WriteLine(
-      //S      $"Execute Update on: {Parent.Name} {GetType().Name} {i} (Time since last update: {timeSinceLastUpdate.TotalMilliseconds:F2} ms)");
+        // Console.WriteLine(
+        //S      $"Execute Update on: {Parent.Name} {GetType().Name} {i} (Time since last update: {timeSinceLastUpdate.TotalMilliseconds:F2} ms)");
     }
 
     public void FixedUpdate()
     {
         TimeSpan timeSinceLastFixedUpdate = DateTime.Now - lastFixedUpdateTime;
-        
+
         // Обновляем время последнего вызова FixedUpdate
         lastFixedUpdateTime = DateTime.Now;
         b++;
-        Console.WriteLine(
-            $"Execute FixedUpdate on: {Parent.Name} {GetType().Name} {b} (Time since last fixed update: {timeSinceLastFixedUpdate.TotalMilliseconds:F2} ms)");
+        //  Console.WriteLine(
+        //    $"Execute FixedUpdate on: {Parent.Name} {GetType().Name} {b} (Time since last fixed update: {timeSinceLastFixedUpdate.TotalMilliseconds:F2} ms)");
     }
 }

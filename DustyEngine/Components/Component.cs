@@ -5,15 +5,16 @@ namespace DustyEngine.Components;
 public class Component
 {
     public GameObject Parent { get; set; }
-    private bool _isActive;
-    public bool IsActive
+    public bool IsActive { get; set; }
+
+    public void SetActive(bool active)
     {
-        get { return _isActive; }
-        set
+        if (Parent.IsActive)
         {
-          MethodInfo method = GetType().GetMethod(value ? "OnEnable" : "OnDisable")!;
-            Console.WriteLine(GetType().Name + " is: " + value); // Debug
-            _isActive = value;
+            MethodInfo method = GetType().GetMethod(active ? "OnEnable" : "OnDisable")!;
+            method.Invoke(this, null);
+            Console.WriteLine(GetType().Name + " is: " + active + " on: " + Parent.Name);
+            IsActive = active;
         }
     }
 }

@@ -19,7 +19,7 @@ public class SceneConverter : JsonConverter<Scene.Scene>
 
             if (doc.RootElement.TryGetProperty("GameObjects", out var gameObjectsElement))
             {
-                scene.GameObjects = DeserializeGameObjects(gameObjectsElement, null);
+                scene.GameObjects = DeserializeGameObjects(gameObjectsElement, null, options);
             }
 
             if (doc.RootElement.TryGetProperty("Components", out var componentsElement))
@@ -31,7 +31,8 @@ public class SceneConverter : JsonConverter<Scene.Scene>
         }
     }
 
-    private List<GameObject> DeserializeGameObjects(JsonElement element, GameObject parent)
+    private List<GameObject> DeserializeGameObjects(JsonElement element, GameObject parent,
+        JsonSerializerOptions options)
     {
         var gameObjects = new List<GameObject>();
 
@@ -51,18 +52,18 @@ public class SceneConverter : JsonConverter<Scene.Scene>
 
             gameObject.Parent = parent;
 
-            // Добавляем кастомный конвертер для десериализации компонентов
             if (objElement.TryGetProperty("Components", out var componentsElement))
             {
-                var options = new JsonSerializerOptions();
-                options.Converters.Add(new ComponentConverter());
-
-                gameObject.Components = JsonSerializer.Deserialize<List<Component>>(componentsElement.GetRawText(), options);
+                var components = JsonSerializer.Deserialize<List<Component>>(componentsElement.GetRawText(), options);
+                foreach (var component in components)
+                {
+                    gameObject.AddComponent(component);
+                }
             }
 
             if (objElement.TryGetProperty("Children", out var childrenElement))
             {
-                gameObject.Children = DeserializeGameObjects(childrenElement, gameObject);
+                gameObject.Children = DeserializeGameObjects(childrenElement, gameObject, options);
             }
 
             gameObjects.Add(gameObject);
@@ -70,7 +71,6 @@ public class SceneConverter : JsonConverter<Scene.Scene>
 
         return gameObjects;
     }
-
 
 
     public override void Write(Utf8JsonWriter writer, Scene.Scene value, JsonSerializerOptions options)
