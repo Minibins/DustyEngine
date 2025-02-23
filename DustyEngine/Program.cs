@@ -92,11 +92,23 @@ namespace DustyEngine
             loadedScene.GameObjects[0].Components[0].SetActive(true);
             loadedScene.GameObjects[0].SeActive(true);
 
+            GameObject test = new GameObject
+            {
+                Name = "TestGameObject3", IsActive = true, Components =
+                {
+                    new TestComponent
+                    {
+                        IsActive = true
+                    }
+                }
+            };
+            loadedScene.Instantiate(test);
+            loadedScene.Destroy(test);
             Task.Run(() => ExecuteFixedUpdateLoop(s_scene));
             ExecuteUpdateLoop(s_scene);
         }
 
-        
+
         private static void InvokeStartRecursive(GameObject gameObject)
         {
             if (gameObject.IsActive)
@@ -178,14 +190,7 @@ public class TestComponent : Component
     {
         lastUpdateTime = DateTime.Now;
         lastFixedUpdateTime = DateTime.Now;
-        // if (Parent == null)
-        // {
-        //     Console.WriteLine("Parent is still null in OnEnable.");
-        // }
-        // else
-        // {
-        //     Console.WriteLine("Parent is set: " + Parent.Name);
-        // }
+
         Console.WriteLine("Execute OnEnable on: " + Parent.Name + " on " + GetType().Name);
         //  Parent.GetComponent<TestComponent>()?.TestMethod();
     }
@@ -198,6 +203,11 @@ public class TestComponent : Component
     public void OnDisable()
     {
         Console.WriteLine("Execute OnDisable on:" + Parent.Name + " " + GetType().Name);
+    }
+
+    public void OnDestroy()
+    {
+        Console.WriteLine("Execute OnDestroy on:" + Parent.Name + " " + GetType().Name);
     }
 
     public void Start()

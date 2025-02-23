@@ -13,6 +13,12 @@ public class GameObject
     [JsonIgnore] public GameObject Parent { get; set; }
 
 
+    // public GameObject()
+    // {
+    //     InvokeMethodInComponents("OnEnable");
+    //     InvokeMethodInComponents("Start");
+    // }
+    //
     public void SeActive(bool isActive)
     {
         InvokeMethodInComponents(isActive ? "OnEnable" : "OnDisable");
@@ -28,7 +34,12 @@ public class GameObject
         component.Parent = this;
         Console.WriteLine($"Added component: {component.GetType().Name} to {Name}");
     }
-
+    public void Destroy()
+    {
+        InvokeMethodInComponents("OnDestroy");
+    
+        Components.Clear();
+    }
     public T? GetComponent<T>() where T : Component
     {
         return Components.OfType<T>().FirstOrDefault();
