@@ -29,6 +29,11 @@ namespace DustyEngine
                                 IsActive = true,
                                 Components =
                                 {
+                                    new Transform
+                                    {
+                                        IsActive = true,
+                                        Position = new Vector3(0, 0, 0),
+                                    }
                                 }
                             }
                         },
@@ -39,14 +44,14 @@ namespace DustyEngine
                                 TestNumber = 20,
                                 TestString = "Hello World",
                                 IsActive = true,
+                            },
+                            new Transform
+                            {
+                                IsActive = true,
+                                Position = new Vector3(0, 0, 0),
                             }
                         }
-                    },
-                    new GameObject
-                    {
-                        Name = "TestGameObject1",
-                        IsActive = true,
-                    },
+                    }
                 },
             };
 
@@ -102,7 +107,15 @@ namespace DustyEngine
                     }
                 }
             };
+        
+
+            Transform transform = new Transform
+            {
+                IsActive = true,
+            };
+
             loadedScene.Instantiate(test);
+            test.AddComponent(transform);
             loadedScene.Destroy(test);
             Task.Run(() => ExecuteFixedUpdateLoop(s_scene));
             ExecuteUpdateLoop(s_scene);

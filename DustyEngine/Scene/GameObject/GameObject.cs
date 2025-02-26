@@ -11,18 +11,11 @@ public class GameObject
     public List<Component> Components { get; set; } = new List<Component>();
 
     [JsonIgnore] public GameObject Parent { get; set; }
-
-
-    // public GameObject()
-    // {
-    //     InvokeMethodInComponents("OnEnable");
-    //     InvokeMethodInComponents("Start");
-    // }
-    //
+    
     public void SeActive(bool isActive)
     {
         InvokeMethodInComponents(isActive ? "OnEnable" : "OnDisable");
-        Console.WriteLine(Name + " is: " + isActive); // Debug
+        Console.WriteLine(Name + " is: " + isActive);
         IsActive = isActive;
     }
 

@@ -1,60 +1,69 @@
-﻿using System.Reflection;
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Reflection;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 using DustyEngine.Components;
 
-namespace DustyEngine.Json.Converters;
-
-public class ComponentConverter : JsonConverter<Component>
+namespace DustyEngine.Json.Converters
 {
-    public override Component Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
+    public class ComponentConverter : JsonConverter<Component>
     {
-        using (JsonDocument doc = JsonDocument.ParseValue(ref reader))
-        {
-            string type = doc.RootElement.GetProperty("Type").GetString();
-            
-            var newOptions = new JsonSerializerOptions(options);
-            newOptions.Converters.Clear();
-            
-            Type componentType;
-            switch (type)
-            {
-                case "TestComponent":
-                    componentType = typeof(TestComponent);
-                    break;
-                default:
-                    throw new JsonException($"Unknown component: {type}");
-            }
+        private static readonly Dictionary<string, Type> ComponentTypes;
 
-            return (Component)JsonSerializer.Deserialize(doc.RootElement.GetRawText(), componentType, newOptions);
+        static ComponentConverter()
+        {
+            // Получаем ВСЕ загруженные сборки
+            var assemblies = AppDomain.CurrentDomain.GetAssemblies();
+
+            // Ищем все классы, унаследованные от Component
+            ComponentTypes = assemblies
+                .SelectMany(a => a.GetTypes())
+                .Where(t => t.IsClass && !t.IsAbstract && t.IsSubclassOf(typeof(Component)))
+                .ToDictionary(t => t.Name, t => t);
         }
-    }
 
-    public override void Write(Utf8JsonWriter writer, Component value, JsonSerializerOptions options)
-    {
-        writer.WriteStartObject();
-        writer.WriteString("Type", value.GetType().Name);
-
-        foreach (PropertyInfo property in value.GetType().GetProperties())
+        public override Component Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
         {
-            object propValue = property.GetValue(value);
-            if (propValue != null)
+            using (JsonDocument doc = JsonDocument.ParseValue(ref reader))
             {
-                writer.WritePropertyName(property.Name);
-                JsonSerializer.Serialize(writer, propValue, options);
+                string typeName = doc.RootElement.GetProperty("Type").GetString();
+
+                if (!ComponentTypes.TryGetValue(typeName, out Type componentType))
+                    throw new JsonException($"Unknown component: {typeName}");
+
+                var newOptions = new JsonSerializerOptions(options) { Converters = { this } };
+                return (Component)JsonSerializer.Deserialize(doc.RootElement.GetRawText(), componentType, newOptions)!;
             }
         }
 
-        foreach (FieldInfo field in value.GetType().GetFields())
+        public override void Write(Utf8JsonWriter writer, Component value, JsonSerializerOptions options)
         {
-            object fieldValue = field.GetValue(value);
-            if (fieldValue != null)
-            {
-                writer.WritePropertyName(field.Name);
-                JsonSerializer.Serialize(writer, fieldValue, options);
-            }
-        }
+            writer.WriteStartObject();
+            writer.WriteString("Type", value.GetType().Name);
 
-        writer.WriteEndObject();
+            var type = value.GetType();
+
+            foreach (var member in type.GetMembers(BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance))
+            {
+                if (member.Name.Contains("k__BackingField")) continue; // Игнорируем бекерные поля
+
+                object? memberValue = member switch
+                {
+                    PropertyInfo prop when prop.CanRead => prop.GetValue(value),
+                    FieldInfo field => field.GetValue(value),
+                    _ => null
+                };
+
+                if (memberValue != null)
+                {
+                    writer.WritePropertyName(member.Name);
+                    JsonSerializer.Serialize(writer, memberValue, options);
+                }
+            }
+
+            writer.WriteEndObject();
+        }
     }
 }
