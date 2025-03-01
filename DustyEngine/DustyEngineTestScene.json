@@ -1,0 +1,59 @@
+{
+  "Name": "DustyEngineTestScene",
+  "GameObjects": [
+    {
+      "Name": "TestGameObject0",
+      "IsActive": true,
+      "Children": [
+        {
+          "Name": "TestGameObject2",
+          "IsActive": true,
+          "Children": [],
+          "Components": [
+            {
+              "Type": "Transform",
+              "Position": {
+                "X": 0,
+                "Y": 0,
+                "Z": 0
+              },
+              "LocalPosition": {
+                "X": 0,
+                "Y": 0,
+                "Z": 0
+              },
+              "IsActive": true
+            }
+          ]
+        }
+      ],
+      "Components": [
+        {
+          "Type": "TestComponent",
+          "TestNumber": 20,
+          "TestString": "Hello World",
+          "IsActive": true,
+          "i": 0,
+          "b": 0,
+          "lastUpdateTime": "0001-01-01T00:00:00",
+          "lastFixedUpdateTime": "0001-01-01T00:00:00"
+        },
+        {
+          "Type": "Transform",
+          "Position": {
+            "X": 0,
+            "Y": 0,
+            "Z": 0
+          },
+          "LocalPosition": {
+            "X": 0,
+            "Y": 0,
+            "Z": 0
+          },
+          "IsActive": true
+        }
+      ]
+    }
+  ],
+  "Components": []
+}
