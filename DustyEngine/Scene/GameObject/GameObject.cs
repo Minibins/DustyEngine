@@ -11,7 +11,7 @@ public class GameObject
     public List<Component> Components { get; set; } = new List<Component>();
 
     [JsonIgnore] public GameObject Parent { get; set; }
-    
+
     public void SeActive(bool isActive)
     {
         InvokeMethodInComponents(isActive ? "OnEnable" : "OnDisable");
@@ -27,12 +27,14 @@ public class GameObject
         component.Parent = this;
         Console.WriteLine($"Added component: {component.GetType().Name} to {Name}");
     }
+
     public void Destroy()
     {
         InvokeMethodInComponents("OnDestroy");
-    
+
         Components.Clear();
     }
+
     public T? GetComponent<T>() where T : Component
     {
         return Components.OfType<T>().FirstOrDefault();
@@ -40,14 +42,31 @@ public class GameObject
 
     public void InvokeMethodInComponents(string methodName)
     {
-        //  Console.WriteLine($"{Name} has {Components?.Count ?? 0} components.");
+        Console.WriteLine($"[{Name}] has {Components?.Count ?? 0} components.");
+
         foreach (Component component in Components ?? Enumerable.Empty<Component>())
         {
             component.Parent = this;
-            var startMethod = component.GetType().GetMethod(methodName,
-                BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic);
-            startMethod?.Invoke(component, null);
-            //  Console.WriteLine($"Executed {component.GetType().Name}.{methodName} on {Name}");
+
+            try
+            {
+                var method = component.GetType().GetMethod(methodName,
+                    BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic);
+
+                if (method != null)
+                {
+                    Console.WriteLine($"Executing {component.GetType().Name}.{methodName} on {Name}");
+                    method.Invoke(component, null);
+                }
+                else
+                {
+                    Console.WriteLine($"Method {methodName} not found in {component.GetType().Name}");
+                }
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Error executing {methodName} in {component.GetType().Name}: {ex.Message}");
+            }
         }
     }
 }

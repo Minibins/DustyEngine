@@ -1,5 +1,4 @@
 ﻿using DustyEngine.Components;
-using System;
 
 namespace DustyEngine.Scene;
 
@@ -25,6 +24,7 @@ public class Scene
         {
             gameObject.Destroy();
         }
+
         Console.WriteLine($"[DEBUG] After Destroy: GameObjects={GameObjects.Count}");
     }
 }

@@ -57,6 +57,7 @@ public class SceneConverter : JsonConverter<Scene.Scene>
                 var components = JsonSerializer.Deserialize<List<Component>>(componentsElement.GetRawText(), options);
                 foreach (var component in components)
                 {
+                    Console.WriteLine(component.GetType().Name);
                     gameObject.AddComponent(component);
                 }
             }

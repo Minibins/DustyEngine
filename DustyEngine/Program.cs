@@ -1,5 +1,4 @@
-﻿using System.Diagnostics;
-using System.Reflection;
+﻿using System.Reflection;
 using System.Text.Json;
 using DustyEngine.Components;
 using DustyEngine.Json.Converters;
@@ -9,9 +8,11 @@ namespace DustyEngine
     internal class Program
     {
         private static Scene.Scene s_scene;
+        public static string ProjectFolderPath { get; set; }
 
         static void Main(string[] args)
         {
+            ProjectFolderPath = "/home/maksym/DustyEngine/DustyEngine/Project";
             s_scene = new Scene.Scene
             {
                 Name = "DustyEngineTestScene",
@@ -56,69 +57,71 @@ namespace DustyEngine
             };
 
             string fileName = s_scene.Name + ".json";
+            //
+            // string jsonString = JsonSerializer.Serialize(s_scene, new JsonSerializerOptions
+            // {
+            //     WriteIndented = true,
+            //     IncludeFields = true,
+            //     Converters =
+            //     {
+            //         new ComponentConverter(),
+            //         new SceneConverter()
+            //     }
+            // });
+            //
+            // Console.WriteLine("Serialized JSON:\n" + jsonString);
+            //
+            // File.WriteAllText(fileName, jsonString);
+            //
+            // Console.WriteLine("\nRead from file:\n" + File.ReadAllText(fileName));
 
-            string jsonString = JsonSerializer.Serialize(s_scene, new JsonSerializerOptions
-            {
-                WriteIndented = true,
-                IncludeFields = true,
-                Converters =
+            Scene.Scene loadedScene = JsonSerializer.Deserialize<Scene.Scene>(
+                File.ReadAllText("/home/maksym/DustyEngine/DustyEngine/bin/Debug/net8.0/DustyEngineTestScene.json"),
+                new JsonSerializerOptions
                 {
-                    new ComponentConverter(),
-                    new SceneConverter()
-                }
-            });
-
-            Console.WriteLine("Serialized JSON:\n" + jsonString);
-
-            File.WriteAllText(fileName, jsonString);
-
-            Console.WriteLine("\nRead from file:\n" + File.ReadAllText(fileName));
-
-            Scene.Scene loadedScene = JsonSerializer.Deserialize<Scene.Scene>(jsonString, new JsonSerializerOptions
-            {
-                WriteIndented = true,
-                IncludeFields = true,
-                Converters =
-                {
-                    new ComponentConverter(),
-                    new SceneConverter()
-                }
-            });
+                    WriteIndented = true,
+                    IncludeFields = true,
+                    Converters =
+                    {
+                        new ComponentConverter(),
+                        new SceneConverter()
+                    }
+                });
 
 
-            foreach (var gameObject in s_scene.GameObjects)
+            foreach (var gameObject in loadedScene.GameObjects)
             {
                 InvokeStartRecursive(gameObject);
             }
 
 
             loadedScene.GameObjects[0].Components[0].SetActive(false);
-            loadedScene.GameObjects[0].SeActive(false);
-            loadedScene.GameObjects[0].Components[0].SetActive(true);
-            loadedScene.GameObjects[0].SeActive(true);
+            // loadedScene.GameObjects[0].SeActive(false);
+            // loadedScene.GameObjects[0].Components[0].SetActive(true);
+            // loadedScene.GameObjects[0].SeActive(true);
 
-            GameObject test = new GameObject
-            {
-                Name = "TestGameObject3", IsActive = true, Components =
-                {
-                    new TestComponent
-                    {
-                        IsActive = true
-                    }
-                }
-            };
-        
-
-            Transform transform = new Transform
-            {
-                IsActive = true,
-            };
-
-            loadedScene.Instantiate(test);
-            test.AddComponent(transform);
-            loadedScene.Destroy(test);
-            Task.Run(() => ExecuteFixedUpdateLoop(s_scene));
-            ExecuteUpdateLoop(s_scene);
+            // GameObject test = new GameObject
+            // {
+            //     Name = "TestGameObject3", IsActive = true, Components =
+            //     {
+            //         new TestComponent
+            //         {
+            //             IsActive = true
+            //         }
+            //     }
+            // };
+            //
+            //
+            // Transform transform = new Transform
+            // {
+            //     IsActive = true,
+            // };
+            //
+            // loadedScene.Instantiate(test);
+            // test.AddComponent(transform);
+            // loadedScene.Destroy(test);
+            Task.Run(() => ExecuteFixedUpdateLoop(loadedScene));
+            ExecuteUpdateLoop(loadedScene);
         }
 
 
@@ -225,14 +228,22 @@ public class TestComponent : Component
 
     public void Start()
     {
-        Console.WriteLine("Execute Start on:" + Parent.Name + " " + GetType().Name);
+        foreach (var parentComponent in Parent.Components)
+        {
+            Console.WriteLine(parentComponent.GetType().Name);
+
+            if (parentComponent.GetType().Name == "Player")
+            {
+                Console.WriteLine("TEst");
+                parentComponent.SetActive(false);
+            }
+        }
     }
 
     public void Update()
     {
         TimeSpan timeSinceLastUpdate = DateTime.Now - lastUpdateTime;
-
-        // Обновляем время последнего запуска
+        
         lastUpdateTime = DateTime.Now;
         i++;
         // Console.WriteLine(
@@ -242,8 +253,7 @@ public class TestComponent : Component
     public void FixedUpdate()
     {
         TimeSpan timeSinceLastFixedUpdate = DateTime.Now - lastFixedUpdateTime;
-
-        // Обновляем время последнего вызова FixedUpdate
+        
         lastFixedUpdateTime = DateTime.Now;
         b++;
         //  Console.WriteLine(

@@ -12,7 +12,9 @@ public class Component
         if (Parent.IsActive)
         {
             MethodInfo method = GetType().GetMethod(active ? "OnEnable" : "OnDisable")!;
-            method.Invoke(this, null);
+            if (method != null)
+                method.Invoke(this, null);
+
             Console.WriteLine(GetType().Name + " is: " + active + " on: " + Parent.Name);
             IsActive = active;
         }
