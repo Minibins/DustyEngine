@@ -33,7 +33,7 @@ namespace DustyEngine
                                     new Transform
                                     {
                                         IsActive = true,
-                                        Position = new Vector3(0, 0, 0),
+                                        LocalPosition = new Vector3(1f, 0f, 0f),
                                     }
                                 }
                             }
@@ -49,7 +49,7 @@ namespace DustyEngine
                             new Transform
                             {
                                 IsActive = true,
-                                Position = new Vector3(0, 0, 0),
+                                LocalPosition = new Vector3(0f, 0f, 0f),
                             }
                         }
                     }
@@ -232,18 +232,20 @@ public class TestComponent : Component
         {
             Console.WriteLine(parentComponent.GetType().Name);
 
-            if (parentComponent.GetType().Name == "Player")
-            {
-                Console.WriteLine("TEst");
-                parentComponent.SetActive(false);
-            }
+            // if (parentComponent.GetType().Name == "Player")
+            // {
+            //     Console.WriteLine("TEst");
+            //     parentComponent.SetActive(false);
+            // }
         }
+         
+        Console.WriteLine(Parent.GetComponent<Transform>());
     }
 
     public void Update()
     {
         TimeSpan timeSinceLastUpdate = DateTime.Now - lastUpdateTime;
-        
+
         lastUpdateTime = DateTime.Now;
         i++;
         // Console.WriteLine(
@@ -253,7 +255,7 @@ public class TestComponent : Component
     public void FixedUpdate()
     {
         TimeSpan timeSinceLastFixedUpdate = DateTime.Now - lastFixedUpdateTime;
-        
+
         lastFixedUpdateTime = DateTime.Now;
         b++;
         //  Console.WriteLine(

@@ -19,5 +19,7 @@ public class Player : Component
     public void Start()
     {
         Console.WriteLine("Starting player");
+
+        Console.WriteLine(Parent.GetComponent<Transform>());
     }
 }
