@@ -16,6 +16,26 @@ public class Scene
         gameObject.InvokeMethodInComponents("Start");
         Console.WriteLine($"[DEBUG] After Instantiate: GameObjects={GameObjects.Count}");
     }
+    public void Instantiate(GameObject gameObject, Transform transform)
+    {
+        Console.WriteLine($"[DEBUG] Before Instantiate: GameObjects={GameObjects.Count}");
+        
+        Transform targetTransform = gameObject.GetComponent<Transform>();
+        if (targetTransform != null)
+        {
+            targetTransform.LocalPosition = transform.LocalPosition;
+            targetTransform.LocalRotation = transform.LocalRotation;
+            targetTransform.LocalScale= transform.LocalScale;
+        }
+        else
+        {
+            Console.WriteLine("[ERROR] GameObject has no Transform component!");
+        }
+        GameObjects.Add(gameObject);
+        gameObject.InvokeMethodInComponents("OnEnable");
+        gameObject.InvokeMethodInComponents("Start");
+        Console.WriteLine($"[DEBUG] After Instantiate: GameObjects={GameObjects.Count}");
+    }
 
     public void Destroy(GameObject gameObject)
     {
