@@ -12,17 +12,22 @@
           "Components": [
             {
               "Type": "Transform",
-              "Position": {
-                "X": 0,
-                "Y": 0,
-                "Z": 0
-              },
+              "IsActive": true,
               "LocalPosition": {
                 "X": 0,
                 "Y": 0,
                 "Z": 0
               },
-              "IsActive": true
+              "LocalRotation": {
+                "X": 0,
+                "Y": 0,
+                "Z": 0
+              },
+              "LocalScale": {
+                "X": 1,
+                "Y": 1,
+                "Z": 1
+              }
             }
           ]
         }
@@ -35,22 +40,32 @@
           "IsActive": true,
           "i": 0,
           "b": 0,
-          "lastUpdateTime": "0001-01-01T00:00:00",
-          "lastFixedUpdateTime": "0001-01-01T00:00:00"
+          "lastUpdateTime": null,
+          "lastFixedUpdateTime": null
+        },
+        {
+          "Type":"Player",
+          "sourcePath": "C:\\Users\\maksym\\Documents\\GitHub\\DustyEngine\\DustyEngine\\Project\\Player.cs",
+          "IsActive": true
         },
         {
           "Type": "Transform",
-          "Position": {
-            "X": 0,
-            "Y": 0,
-            "Z": 0
-          },
+          "IsActive": true,
           "LocalPosition": {
             "X": 0,
             "Y": 0,
             "Z": 0
           },
-          "IsActive": true
+          "LocalRotation": {
+            "X": 0,
+            "Y": 0,
+            "Z": 0
+          },
+          "LocalScale": {
+            "X": 1,
+            "Y": 1,
+            "Z": 1
+          }
         }
       ]
     }

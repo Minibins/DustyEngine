@@ -7,19 +7,18 @@ public class Player : Component
 
     public void OnEnable()
     {
-        Console.WriteLine(GetType().Name + " on " + Parent.Name);
-        Console.WriteLine("OnEnable player");
+      //  Console.WriteLine("Execute OnEnable on: " + Parent.Name + " on " + GetType().Name);
     }
 
     public void OnDisable()
     {
-        Console.WriteLine("OnDisable player");
+      //  Console.WriteLine("Execute OnDisable on:" + Parent.Name + " " + GetType().Name);
     }
 
     public void Start()
     {
-        Console.WriteLine("Starting player");
-
+     //   Console.WriteLine("Execute Start on: " + Parent.Name + " on " + GetType().Name);
+        
         Console.WriteLine(Parent.GetComponent<Transform>());
     }
 }

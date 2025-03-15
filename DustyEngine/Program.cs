@@ -76,7 +76,7 @@ namespace DustyEngine
             // Console.WriteLine("\nRead from file:\n" + File.ReadAllText(fileName));
 
             Scene.Scene loadedScene = JsonSerializer.Deserialize<Scene.Scene>(
-                File.ReadAllText("/home/maksym/DustyEngine/DustyEngine/bin/Debug/net8.0/DustyEngineTestScene.json"),
+                File.ReadAllText("C:\\Users\\maksym\\Documents\\GitHub\\DustyEngine\\DustyEngine\\DustyEngineTestScene.json"),
                 new JsonSerializerOptions
                 {
                     WriteIndented = true,
@@ -91,11 +91,15 @@ namespace DustyEngine
 
             foreach (var gameObject in loadedScene.GameObjects)
             {
+                InvokeOnEnableRecursive(gameObject);
+            }
+
+            foreach (var gameObject in loadedScene.GameObjects)
+            {
                 InvokeStartRecursive(gameObject);
             }
 
-
-            loadedScene.GameObjects[0].Components[0].SetActive(false);
+            
             // loadedScene.GameObjects[0].SeActive(false);
             // loadedScene.GameObjects[0].Components[0].SetActive(true);
             // loadedScene.GameObjects[0].SeActive(true);
@@ -125,11 +129,23 @@ namespace DustyEngine
         }
 
 
-        private static void InvokeStartRecursive(GameObject gameObject)
+        private static void InvokeOnEnableRecursive(GameObject gameObject)
         {
             if (gameObject.IsActive)
             {
                 gameObject.InvokeMethodInComponents("OnEnable");
+            }
+
+            foreach (var child in gameObject.Children)
+            {
+                InvokeOnEnableRecursive(child);
+            }
+        }
+
+        private static void InvokeStartRecursive(GameObject gameObject)
+        {
+            if (gameObject.IsActive)
+            {
                 gameObject.InvokeMethodInComponents("Start");
             }
 
@@ -207,27 +223,22 @@ public class TestComponent : Component
         lastUpdateTime = DateTime.Now;
         lastFixedUpdateTime = DateTime.Now;
 
-        Console.WriteLine("Execute OnEnable on: " + Parent.Name + " on " + GetType().Name);
-        //  Parent.GetComponent<TestComponent>()?.TestMethod();
+        //Console.WriteLine("Execute OnEnable on: " + Parent.Name + " on " + GetType().Name);
     }
-
-    public void TestMethod()
-    {
-        Console.WriteLine("Execute TestMethod on:" + Parent.Name + " " + GetType().Name);
-    }
-
+    
     public void OnDisable()
     {
-        Console.WriteLine("Execute OnDisable on:" + Parent.Name + " " + GetType().Name);
+      //  Console.WriteLine("Execute OnDisable on:" + Parent.Name + " " + GetType().Name);
     }
 
     public void OnDestroy()
     {
-        Console.WriteLine("Execute OnDestroy on:" + Parent.Name + " " + GetType().Name);
+      //  Console.WriteLine("Execute OnDestroy on:" + Parent.Name + " " + GetType().Name);
     }
 
     public void Start()
-    {
+    {  
+       // Console.WriteLine("Execute Start on: " + Parent.Name + " on " + GetType().Name);
         foreach (var parentComponent in Parent.Components)
         {
             Console.WriteLine(parentComponent.GetType().Name);
@@ -240,6 +251,9 @@ public class TestComponent : Component
         }
          
         Console.WriteLine(Parent.GetComponent<Transform>());
+        
+        Parent.GetComponent<Player>().SetActive(false);
+        Parent.GetComponent<Player>().Parent.SetActive(false);
     }
 
     public void Update()

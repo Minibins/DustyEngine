@@ -12,7 +12,7 @@ public class GameObject
 
     [JsonIgnore] public GameObject Parent { get; set; }
 
-    public void SeActive(bool isActive)
+    public void SetActive(bool isActive)
     {
         InvokeMethodInComponents(isActive ? "OnEnable" : "OnDisable");
         Console.WriteLine(Name + " is: " + isActive);
@@ -48,24 +48,31 @@ public class GameObject
         {
             component.Parent = this;
 
-            try
+            if (component.IsActive && IsActive)
             {
-                var method = component.GetType().GetMethod(methodName,
-                    BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic);
+                try
+                {
+                    var method = component.GetType().GetMethod(methodName,
+                        BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic);
 
-                if (method != null)
-                {
-                    Console.WriteLine($"Executing {component.GetType().Name}.{methodName} on {Name}");
-                    method.Invoke(component, null);
+                    if (method != null)
+                    {
+                        Console.WriteLine($"Executing {component.GetType().Name}.{methodName} on {Name}");
+                        method.Invoke(component, null);
+                    }
+                    else
+                    {
+                        Console.WriteLine($"Method {methodName} not found in {component.GetType().Name}");
+                    }
                 }
-                else
+                catch (Exception ex)
                 {
-                    Console.WriteLine($"Method {methodName} not found in {component.GetType().Name}");
+                    Console.WriteLine($"Error executing {methodName} in {component.GetType().Name}: {ex.Message}");
                 }
             }
-            catch (Exception ex)
+            else
             {
-                Console.WriteLine($"Error executing {methodName} in {component.GetType().Name}: {ex.Message}");
+                Console.WriteLine($"Error executing {methodName} in {component.GetType().Name}: GameObject or component is inactive");
             }
         }
     }
