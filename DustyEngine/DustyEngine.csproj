@@ -12,6 +12,7 @@
     </ItemGroup>
 
     <ItemGroup>
+      <Folder Include="Debug\" />
       <Folder Include="Project\Dlls\" />
     </ItemGroup>
 

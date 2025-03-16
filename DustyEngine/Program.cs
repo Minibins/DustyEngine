@@ -222,32 +222,21 @@ public class TestComponent : Component
     {
         lastUpdateTime = DateTime.Now;
         lastFixedUpdateTime = DateTime.Now;
-
-        //Console.WriteLine("Execute OnEnable on: " + Parent.Name + " on " + GetType().Name);
     }
     
     public void OnDisable()
     {
-      //  Console.WriteLine("Execute OnDisable on:" + Parent.Name + " " + GetType().Name);
     }
 
     public void OnDestroy()
     {
-      //  Console.WriteLine("Execute OnDestroy on:" + Parent.Name + " " + GetType().Name);
     }
 
     public void Start()
     {  
-       // Console.WriteLine("Execute Start on: " + Parent.Name + " on " + GetType().Name);
         foreach (var parentComponent in Parent.Components)
         {
             Console.WriteLine(parentComponent.GetType().Name);
-
-            // if (parentComponent.GetType().Name == "Player")
-            // {
-            //     Console.WriteLine("TEst");
-            //     parentComponent.SetActive(false);
-            // }
         }
          
         Console.WriteLine(Parent.GetComponent<Transform>());
