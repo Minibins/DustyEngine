@@ -1,6 +1,7 @@
 ﻿using System.Reflection;
 using System.Text.Json;
 using System.Text.Json.Serialization;
+using DustyEngine_V3;
 using DustyEngine.Components;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
@@ -15,7 +16,7 @@ namespace DustyEngine.Json.Converters
         static ComponentConverter()
         {
             var assemblies = AppDomain.CurrentDomain.GetAssemblies();
-            
+
             ComponentTypes = assemblies
                 .SelectMany(a => a.GetTypes())
                 .Where(t => t.IsClass && !t.IsAbstract && t.IsSubclassOf(typeof(Component)))
@@ -26,8 +27,6 @@ namespace DustyEngine.Json.Converters
         {
             using (JsonDocument doc = JsonDocument.ParseValue(ref reader))
             {
-                // Console.WriteLine($"Raw JSON: {doc.RootElement.GetRawText()}");
-
                 string typeName = doc.RootElement.GetProperty("Type").GetString();
 
                 if (!ComponentTypes.TryGetValue(typeName, out Type componentType))
@@ -36,9 +35,8 @@ namespace DustyEngine.Json.Converters
                 if (doc.RootElement.TryGetProperty("sourcePath", out JsonElement externalSourcePath))
                 {
                     string sourcePath = externalSourcePath.GetString();
-                    Console.WriteLine($"Source Path: {sourcePath}");
+                    Debug.Log($"Source Path: {sourcePath}", Debug.LogLevel.Info, true);
                     Component? externalComponent = LoadOrCompileComponent(sourcePath);
-                    Console.WriteLine($"Component Type: {externalComponent.GetType().Name}");
                 }
 
                 var newOptions = new JsonSerializerOptions(options) { Converters = { this } };
@@ -52,18 +50,18 @@ namespace DustyEngine.Json.Converters
             string typeName = Path.GetFileNameWithoutExtension(path);
             if (Path.GetExtension(path).Equals(".dll", StringComparison.OrdinalIgnoreCase))
             {
-                Console.WriteLine($"Loading component from DLL: {path}");
+                Debug.Log($"Loading component from DLL: {path}", Debug.LogLevel.Info, true);
                 return LoadComponentFromDll(path, typeName);
             }
             else if (Path.GetExtension(path).Equals(".cs", StringComparison.OrdinalIgnoreCase))
             {
-                Console.WriteLine($"Compiling component from source: {path}");
+                Debug.Log($"Compiling component from source: {path}", Debug.LogLevel.Info, true);
                 string dllPath = CompileSourceToDll(path);
                 return LoadComponentFromDll(dllPath, typeName);
             }
             else
             {
-                throw new NotSupportedException($"Unsupported file type: {path}");
+                Debug.Log($"Unsupported file type: {path}", Debug.LogLevel.Error, true);
             }
 
             return null;
@@ -75,17 +73,22 @@ namespace DustyEngine.Json.Converters
             try
             {
                 var assembly = Assembly.LoadFrom(dllPath);
-                var type = assembly.GetType(typeName)
-                           ?? throw new InvalidOperationException($"Type '{typeName}' not found in '{dllPath}'");
-                Console.WriteLine($"Compiling source: {dllPath}, detected typeName: {typeName}");
-
-                Console.WriteLine($"Loading component from assembly: {assembly.FullName}");
+                var type = assembly.GetType(typeName);
+                if (type == null)
+                {
+                    Debug.Log($"Type '{typeName}' not found in '{dllPath}'", Debug.LogLevel.Error);
+                    return null;
+                }
+                
+                Debug.Log($"Compiling source: {dllPath}, detected typeName: {typeName}", Debug.LogLevel.Info, true);
+                
+                Debug.Log($"Loading component from assembly: {assembly.FullName}", Debug.LogLevel.Info, true);
 
                 return (Component)Activator.CreateInstance(type);
             }
             catch (Exception ex)
             {
-                Console.WriteLine($"Error loading component from DLL: {ex.Message}");
+                Debug.Log($"Error loading component from DLL: {ex.Message}", Debug.LogLevel.Error, true);
                 throw;
             }
         }
@@ -109,7 +112,7 @@ namespace DustyEngine.Json.Converters
 
                 if (sourceLastModified <= dllLastModified)
                 {
-                    Console.WriteLine($"Using existing DLL: {outputDllPath}");
+                    Debug.Log($"Using existing DLL: {outputDllPath}", Debug.LogLevel.Info, true);
                     return outputDllPath;
                 }
             }
@@ -117,23 +120,23 @@ namespace DustyEngine.Json.Converters
             string sourceCode = File.ReadAllText(sourcePath);
             var syntaxTree = CSharpSyntaxTree.ParseText(sourceCode);
             var root = syntaxTree.GetRoot();
-            
+
             var usingDirectives = root.DescendantNodes()
                 .OfType<UsingDirectiveSyntax>()
                 .Select(u => u.Name.ToString())
                 .Distinct()
                 .ToList();
-            
+
             var references = new List<MetadataReference>
             {
-                MetadataReference.CreateFromFile(typeof(object).Assembly.Location), // System.Private.CoreLib
+                MetadataReference.CreateFromFile(typeof(object).Assembly.Location),
                 MetadataReference.CreateFromFile(Assembly.Load("System.Runtime").Location),
                 MetadataReference.CreateFromFile(Assembly.Load("System.Console").Location),
                 MetadataReference.CreateFromFile(Assembly.Load("Microsoft.CSharp").Location),
                 MetadataReference.CreateFromFile(Assembly.GetExecutingAssembly().Location) // DustyEngine.dll
             };
 
-            
+
             foreach (var ns in usingDirectives)
             {
                 var assembly = AppDomain.CurrentDomain.GetAssemblies()
@@ -144,7 +147,7 @@ namespace DustyEngine.Json.Converters
                     references.Add(MetadataReference.CreateFromFile(assembly.Location));
                 }
             }
-            
+
             var compilation = CSharpCompilation.Create(
                 Path.GetFileNameWithoutExtension(outputDllPath),
                 new[] { syntaxTree },
@@ -160,14 +163,14 @@ namespace DustyEngine.Json.Converters
                 {
                     foreach (var diagnostic in result.Diagnostics.Where(d => d.Severity == DiagnosticSeverity.Error))
                     {
-                        Console.WriteLine($"Compilation error: {diagnostic.GetMessage()}");
+                        Debug.Log($"Compilation error: {diagnostic.GetMessage()}", Debug.LogLevel.Error);
                     }
 
-                    throw new Exception("Compilation failed.");
+                    throw new Exception();
                 }
             }
-
-            Console.WriteLine($"Compiled new DLL at: {outputDllPath}");
+            
+            Debug.Log($"Compiled new DLL at: {outputDllPath}", Debug.LogLevel.Info, true);
             return outputDllPath;
         }
 

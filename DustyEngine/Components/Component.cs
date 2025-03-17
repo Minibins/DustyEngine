@@ -1,4 +1,5 @@
 ﻿using System.Reflection;
+using DustyEngine_V3;
 
 namespace DustyEngine.Components;
 
@@ -14,8 +15,8 @@ public class Component
             MethodInfo method = GetType().GetMethod(active ? "OnEnable" : "OnDisable")!;
             if (method != null)
                 method.Invoke(this, null);
-
-            Console.WriteLine(GetType().Name + " is: " + active + " on: " + Parent.Name);
+            
+            Debug.Log($"{GetType().Name} is {(active ? "active" : "inactive")} on GameObject: {Parent.Name}", Debug.LogLevel.Info, true);
             IsActive = active;
         }
     }

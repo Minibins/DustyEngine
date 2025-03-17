@@ -1,5 +1,6 @@
 ﻿using System.Reflection;
 using System.Text.Json;
+using DustyEngine_V3;
 using DustyEngine.Components;
 using DustyEngine.Json.Converters;
 
@@ -12,7 +13,21 @@ namespace DustyEngine
 
         static void Main(string[] args)
         {
-            ProjectFolderPath = "/home/maksym/DustyEngine/DustyEngine/Project";
+            Debug.ClearLogs();
+            Debug.SetLogLevel(Debug.LogLevel.Info);
+            Debug.Log("Starting Dusty Engine", Debug.LogLevel.Info, false);
+            
+            
+            ProjectFolderPath = "C:\\Users\\maksym\\Documents\\GitHub\\DustyEngine\\DustyEngine\\Project";
+            if (ProjectFolderPath != null)
+            {
+                Debug.Log("Project folder path: " + ProjectFolderPath, Debug.LogLevel.Info,true);
+            }
+            else
+            {
+                Debug.Log("Project folder path is null",  Debug.LogLevel.FatalError,false);
+            }
+
             s_scene = new Scene.Scene
             {
                 Name = "DustyEngineTestScene",
@@ -74,19 +89,38 @@ namespace DustyEngine
             // File.WriteAllText(fileName, jsonString);
             //
             // Console.WriteLine("\nRead from file:\n" + File.ReadAllText(fileName));
+            Scene.Scene loadedScene = new Scene.Scene();
+            try
+            {
+                string scenePath = "C:\\Users\\maksym\\Documents\\GitHub\\DustyEngine\\DustyEngine\\DustyEngineTestScene.json";
 
-            Scene.Scene loadedScene = JsonSerializer.Deserialize<Scene.Scene>(
-                File.ReadAllText("C:\\Users\\maksym\\Documents\\GitHub\\DustyEngine\\DustyEngine\\DustyEngineTestScene.json"),
-                new JsonSerializerOptions
+                Debug.Log($"Starting scene loading from: {scenePath}", Debug.LogLevel.Info, true);
+
+                if (!File.Exists(scenePath))
                 {
-                    WriteIndented = true,
-                    IncludeFields = true,
-                    Converters =
+                    Debug.Log($"Scene file not found: {scenePath}", Debug.LogLevel.FatalError, false);
+                    return;
+                }
+
+                loadedScene = JsonSerializer.Deserialize<Scene.Scene>(
+                    File.ReadAllText(scenePath),
+                    new JsonSerializerOptions
                     {
-                        new ComponentConverter(),
-                        new SceneConverter()
-                    }
-                });
+                        WriteIndented = true,
+                        IncludeFields = true,
+                        Converters =
+                        {
+                            new ComponentConverter(),
+                            new SceneConverter()
+                        }
+                    });
+
+                Debug.Log("Scene successfully loaded!", Debug.LogLevel.Info, false);
+            }
+            catch (Exception ex)
+            {
+                Debug.Log($"Error loading scene: {ex.Message}", Debug.LogLevel.FatalError, false);
+            }
 
 
             foreach (var gameObject in loadedScene.GameObjects)
@@ -104,26 +138,27 @@ namespace DustyEngine
             // loadedScene.GameObjects[0].Components[0].SetActive(true);
             // loadedScene.GameObjects[0].SeActive(true);
 
-            // GameObject test = new GameObject
-            // {
-            //     Name = "TestGameObject3", IsActive = true, Components =
-            //     {
-            //         new TestComponent
-            //         {
-            //             IsActive = true
-            //         }
-            //     }
-            // };
-            //
-            //
-            // Transform transform = new Transform
-            // {
-            //     IsActive = true,
-            // };
-            //
-            // loadedScene.Instantiate(test);
+            GameObject test = new GameObject
+            {
+                Name = "TestGameObject3", IsActive = true, Components =
+                {
+                    new TestComponent
+                    {
+                        IsActive = true
+                    }
+                }
+            };
+            
+            
+            Transform transform = new Transform
+            {
+                IsActive = true,
+            };
+            
+            loadedScene.Instantiate(test, loadedScene.GameObjects[0]);
             // test.AddComponent(transform);
             // loadedScene.Destroy(test);
+        //    Debug.ShowLogs();
             Task.Run(() => ExecuteFixedUpdateLoop(loadedScene));
             ExecuteUpdateLoop(loadedScene);
         }
@@ -236,13 +271,13 @@ public class TestComponent : Component
     {  
         foreach (var parentComponent in Parent.Components)
         {
-            Console.WriteLine(parentComponent.GetType().Name);
+            //   Debug.Log(parentComponent.GetType().Name);
         }
          
-        Console.WriteLine(Parent.GetComponent<Transform>());
+       // Console.WriteLine(Parent.GetComponent<Transform>());
         
-        Parent.GetComponent<Player>().SetActive(false);
-        Parent.GetComponent<Player>().Parent.SetActive(false);
+       //  Parent.GetComponent<Player>().SetActive(false);
+        //Parent.GetComponent<Player>().Parent.SetActive(false);
     }
 
     public void Update()

@@ -1,5 +1,6 @@
 ﻿using System.Reflection;
 using System.Text.Json.Serialization;
+using DustyEngine_V3;
 using DustyEngine.Components;
 
 public class GameObject
@@ -15,7 +16,7 @@ public class GameObject
     public void SetActive(bool isActive)
     {
         InvokeMethodInComponents(isActive ? "OnEnable" : "OnDisable");
-        Console.WriteLine(Name + " is: " + isActive);
+        Debug.Log($"{Name} is {(IsActive ? "active" : "inactive")}", Debug.LogLevel.Info, true);
         IsActive = isActive;
     }
 
@@ -25,13 +26,12 @@ public class GameObject
 
         Components.Add(component);
         component.Parent = this;
-        Console.WriteLine($"Added component: {component.GetType().Name} to {Name}");
+        Debug.Log($"Added component [{component.GetType().Name}] to GameObject [{Name}]", Debug.LogLevel.Info, true);
     }
 
     public void Destroy()
     {
         InvokeMethodInComponents("OnDestroy");
-
         Components.Clear();
     }
 
@@ -42,37 +42,44 @@ public class GameObject
 
     public void InvokeMethodInComponents(string methodName)
     {
-        Console.WriteLine($"[{Name}] has {Components?.Count ?? 0} components.");
+        Debug.Log($"[{Name}] has {Components?.Count ?? 0} components.", Debug.LogLevel.Info, true);
 
-        foreach (Component component in Components ?? Enumerable.Empty<Component>())
+        if (Components == null || Components.Count == 0)
+        {
+            Debug.Log($"[{Name}] has no components. Skipping {methodName} execution.", Debug.LogLevel.Warning, true);
+            return;
+        }
+
+        foreach (Component component in Components)
         {
             component.Parent = this;
 
-            if (component.IsActive && IsActive)
+            if (!component.IsActive || !IsActive)
             {
-                try
-                {
-                    var method = component.GetType().GetMethod(methodName,
-                        BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic);
-
-                    if (method != null)
-                    {
-                        Console.WriteLine($"Executing {component.GetType().Name}.{methodName} on {Name}");
-                        method.Invoke(component, null);
-                    }
-                    else
-                    {
-                        Console.WriteLine($"Method {methodName} not found in {component.GetType().Name}");
-                    }
-                }
-                catch (Exception ex)
-                {
-                    Console.WriteLine($"Error executing {methodName} in {component.GetType().Name}: {ex.Message}");
-                }
+                Debug.Log(
+                    $"Skipping {methodName} on [{component.GetType().Name}] in [{Name}]: GameObject or component is inactive",
+                    Debug.LogLevel.Info, true);
+                continue;
             }
-            else
+
+            try
             {
-                Console.WriteLine($"Error executing {methodName} in {component.GetType().Name}: GameObject or component is inactive");
+                var method = component.GetType().GetMethod(methodName,
+                    BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic);
+
+                if (method == null)
+                {
+                    continue;
+                }
+
+                Debug.Log($"Executing [{component.GetType().Name}.{methodName}] on [{Name}]", Debug.LogLevel.Info,
+                    true);
+                method.Invoke(component, null);
+            }
+            catch (Exception ex)
+            {
+                Debug.Log($"Error executing [{methodName}] in [{component.GetType().Name}]: {ex.Message}",
+                    Debug.LogLevel.Error, true);
             }
         }
     }

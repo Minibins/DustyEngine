@@ -1,5 +1,7 @@
 using DustyEngine.Components;
 using System;
+using DustyEngine_V3;
+using DustyEngine.Scene;
 
 public class Player : Component
 {
@@ -11,10 +13,11 @@ public class Player : Component
 
     public void OnDisable()
     {
+        
     }
 
     public void Start()
     {
-        Console.WriteLine(Parent.GetComponent<Transform>());
+        Debug.Log(Parent.GetComponent<Transform>());
     }
 }
