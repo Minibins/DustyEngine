@@ -8,7 +8,6 @@ namespace DustyEngine
 {
     internal static class Program
     {
-        private static Scene.Scene s_scene;
         public static string ProjectFolderPath { get; set; }
         public static ProjectSettings settings = new ProjectSettings();
 
