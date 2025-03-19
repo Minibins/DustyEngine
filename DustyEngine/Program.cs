@@ -10,14 +10,14 @@ namespace DustyEngine
     {
         private static Scene.Scene s_scene;
         public static string ProjectFolderPath { get; set; }
-
         public static ProjectSettings settings = new ProjectSettings();
-        public static string ProjectPath = @"C:\Users\maksym\Documents\GitHub\DustyEngine\DustyEngine\Project";
 
         static void Main(string[] args)
         {
             Debug.ClearLogs();
-
+            
+            ProjectFolderPath = "C:\\Users\\maksym\\Documents\\GitHub\\DustyEngine\\DustyEngine\\Project";
+            
             ProjectSettings projectSettings = new ProjectSettings
             {
                 ProjectName = "My Game",
@@ -30,6 +30,13 @@ namespace DustyEngine
             };
 
             SerializeProjectSettings(projectSettings);
+            
+            Debug.Log("Starting Dusty Engine", Debug.LogLevel.Info, false);
+
+            if (ProjectFolderPath != null)
+                Debug.Log("Project folder path: " + ProjectFolderPath, Debug.LogLevel.Info, true);
+            else
+                Debug.Log("Project folder path is null", Debug.LogLevel.FatalError, false);
 
             DeserializeProjectSettings();
 
@@ -45,16 +52,7 @@ namespace DustyEngine
             Debug.Log("Test WARNING", Debug.LogLevel.Warning, true);
             Debug.Log("Test ERROR", Debug.LogLevel.Error, true);
             Debug.Log("Test FATAL", Debug.LogLevel.FatalError, true);
-
-            Debug.Log("Starting Dusty Engine", Debug.LogLevel.Info, false);
-
-            ProjectFolderPath = "C:\\Users\\maksym\\Documents\\GitHub\\DustyEngine\\DustyEngine\\Project";
-
-            if (ProjectFolderPath != null)
-                Debug.Log("Project folder path: " + ProjectFolderPath, Debug.LogLevel.Info, true);
-            else
-                Debug.Log("Project folder path is null", Debug.LogLevel.FatalError, false);
-
+            
             if (LoadScene(out var loadedScene)) return;
 
             foreach (var method in new[] { "OnEnable", "Start" })
@@ -103,7 +101,7 @@ namespace DustyEngine
 
         private static void DeserializeProjectSettings()
         {
-            string filePath = Path.Combine(ProjectPath, "project_settings.json");
+            string filePath = Path.Combine(ProjectFolderPath, "project_settings.json");
 
             if (!File.Exists(filePath))
             {
@@ -123,7 +121,7 @@ namespace DustyEngine
         private static void SerializeProjectSettings(ProjectSettings projectSettings)
         {
             string json = JsonSerializer.Serialize(projectSettings, new JsonSerializerOptions { WriteIndented = true });
-            File.WriteAllText(Path.Combine(ProjectPath, "project_settings.json"), json);
+            File.WriteAllText(Path.Combine(ProjectFolderPath, "project_settings.json"), json);
         }
 
         private static bool LoadScene(out Scene.Scene? loadedScene)
