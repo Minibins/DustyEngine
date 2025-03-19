@@ -6,100 +6,140 @@ using DustyEngine.Json.Converters;
 
 namespace DustyEngine
 {
-    internal class Program
+    internal static class Program
     {
         private static Scene.Scene s_scene;
         public static string ProjectFolderPath { get; set; }
 
+        public static ProjectSettings settings = new ProjectSettings();
+        public static string ProjectPath = @"C:\Users\maksym\Documents\GitHub\DustyEngine\DustyEngine\Project";
+
         static void Main(string[] args)
         {
             Debug.ClearLogs();
-            Debug.SetLogLevel(Debug.LogLevel.Info);
-            Debug.Log("Starting Dusty Engine", Debug.LogLevel.Info, false);
-            
-            
-            ProjectFolderPath = "C:\\Users\\maksym\\Documents\\GitHub\\DustyEngine\\DustyEngine\\Project";
-            if (ProjectFolderPath != null)
+
+            ProjectSettings projectSettings = new ProjectSettings
             {
-                Debug.Log("Project folder path: " + ProjectFolderPath, Debug.LogLevel.Info,true);
+                ProjectName = "My Game",
+                Version = 1.0f,
+                PathToScenes = new List<String>(),
+                Debug = false,
+                LogLevel = Debug.LogLevel.Info,
+                LogToConsole = true,
+                LogToFile = true,
+            };
+
+            SerializeProjectSettings(projectSettings);
+
+            DeserializeProjectSettings();
+
+            Debug.EnableDebugMode(settings.Debug);
+            Debug.SetLogLevel(settings.LogLevel);
+            Debug.EnableConsoleLogging(settings.LogToConsole);
+            Debug.EnableFileLogging(settings.LogToFile);
+
+            Debug.Log("Project settings loaded", Debug.LogLevel.Info, false);
+
+            Debug.Log($"Initial currentLogLevel:  {Debug.GetLogLevel()}", Debug.LogLevel.Info, true);
+            Debug.Log("Test INFO", Debug.LogLevel.Info, true);
+            Debug.Log("Test WARNING", Debug.LogLevel.Warning, true);
+            Debug.Log("Test ERROR", Debug.LogLevel.Error, true);
+            Debug.Log("Test FATAL", Debug.LogLevel.FatalError, true);
+
+            Debug.Log("Starting Dusty Engine", Debug.LogLevel.Info, false);
+
+            ProjectFolderPath = "C:\\Users\\maksym\\Documents\\GitHub\\DustyEngine\\DustyEngine\\Project";
+
+            if (ProjectFolderPath != null)
+                Debug.Log("Project folder path: " + ProjectFolderPath, Debug.LogLevel.Info, true);
+            else
+                Debug.Log("Project folder path is null", Debug.LogLevel.FatalError, false);
+
+            if (LoadScene(out var loadedScene)) return;
+
+            foreach (var method in new[] { "OnEnable", "Start" })
+            {
+                foreach (var gameObject in loadedScene.GameObjects)
+                {
+                    InvokeRecursive(gameObject, method);
+                }
+            }
+
+            TestScene(loadedScene);
+
+
+            Task.Run(() => ExecuteFixedUpdateLoop(loadedScene));
+            ExecuteUpdateLoop(loadedScene);
+        }
+
+        private static void TestScene(Scene.Scene? loadedScene)
+        {
+            // loadedScene.GameObjects[0].SeActive(false);
+            // loadedScene.GameObjects[0].Components[0].SetActive(true);
+            // loadedScene.GameObjects[0].SeActive(true);
+
+            GameObject test = new GameObject
+            {
+                Name = "TestGameObject3", IsActive = true, Components =
+                {
+                    new TestComponent
+                    {
+                        IsActive = true
+                    }
+                }
+            };
+
+
+            Transform transform = new Transform
+            {
+                IsActive = true,
+            };
+
+            loadedScene.Instantiate(test, loadedScene.GameObjects[0]);
+            // test.AddComponent(transform);
+            // loadedScene.Destroy(test);
+            //    Debug.ShowLogs();
+        }
+
+        private static void DeserializeProjectSettings()
+        {
+            string filePath = Path.Combine(ProjectPath, "project_settings.json");
+
+            if (!File.Exists(filePath))
+            {
+                Debug.Log("Project settings file not found", Debug.LogLevel.FatalError, true);
             }
             else
             {
-                Debug.Log("Project folder path is null",  Debug.LogLevel.FatalError,false);
-            }
+                string fileContent = File.ReadAllText(filePath);
+                settings = JsonSerializer.Deserialize<ProjectSettings>(fileContent);
 
-            s_scene = new Scene.Scene
-            {
-                Name = "DustyEngineTestScene",
-                GameObjects = new List<GameObject>
+                if (settings == null)
                 {
-                    new GameObject
-                    {
-                        Name = "TestGameObject0",
-                        IsActive = true,
-                        Children =
-                        {
-                            new GameObject
-                            {
-                                Name = "TestGameObject2",
-                                IsActive = true,
-                                Components =
-                                {
-                                    new Transform
-                                    {
-                                        IsActive = true,
-                                        LocalPosition = new Vector3(1f, 0f, 0f),
-                                    }
-                                }
-                            }
-                        },
-                        Components =
-                        {
-                            new TestComponent
-                            {
-                                TestNumber = 20,
-                                TestString = "Hello World",
-                                IsActive = true,
-                            },
-                            new Transform
-                            {
-                                IsActive = true,
-                                LocalPosition = new Vector3(0f, 0f, 0f),
-                            }
-                        }
-                    }
-                },
-            };
+                    Debug.Log("Project settings could not be loaded", Debug.LogLevel.FatalError, true);
+                }
+            }
+        }
+        private static void SerializeProjectSettings(ProjectSettings projectSettings)
+        {
+            string json = JsonSerializer.Serialize(projectSettings, new JsonSerializerOptions { WriteIndented = true });
+            File.WriteAllText(Path.Combine(ProjectPath, "project_settings.json"), json);
+        }
 
-            string fileName = s_scene.Name + ".json";
-            //
-            // string jsonString = JsonSerializer.Serialize(s_scene, new JsonSerializerOptions
-            // {
-            //     WriteIndented = true,
-            //     IncludeFields = true,
-            //     Converters =
-            //     {
-            //         new ComponentConverter(),
-            //         new SceneConverter()
-            //     }
-            // });
-            //
-            // Console.WriteLine("Serialized JSON:\n" + jsonString);
-            //
-            // File.WriteAllText(fileName, jsonString);
-            //
-            // Console.WriteLine("\nRead from file:\n" + File.ReadAllText(fileName));
-            Scene.Scene loadedScene = new Scene.Scene();
+        private static bool LoadScene(out Scene.Scene? loadedScene)
+        {
+            loadedScene = new Scene.Scene();
             try
             {
-                string scenePath = "C:\\Users\\maksym\\Documents\\GitHub\\DustyEngine\\DustyEngine\\DustyEngineTestScene.json";
+                string scenePath =
+                    "C:\\Users\\maksym\\Documents\\GitHub\\DustyEngine\\DustyEngine\\DustyEngineTestScene.json";
 
                 Debug.Log($"Starting scene loading from: {scenePath}", Debug.LogLevel.Info, true);
 
                 if (!File.Exists(scenePath))
                 {
                     Debug.Log($"Scene file not found: {scenePath}", Debug.LogLevel.FatalError, false);
-                    return;
+                    return true;
                 }
 
                 loadedScene = JsonSerializer.Deserialize<Scene.Scene>(
@@ -122,74 +162,21 @@ namespace DustyEngine
                 Debug.Log($"Error loading scene: {ex.Message}", Debug.LogLevel.FatalError, false);
             }
 
-
-            foreach (var gameObject in loadedScene.GameObjects)
-            {
-                InvokeOnEnableRecursive(gameObject);
-            }
-
-            foreach (var gameObject in loadedScene.GameObjects)
-            {
-                InvokeStartRecursive(gameObject);
-            }
-
-            
-            // loadedScene.GameObjects[0].SeActive(false);
-            // loadedScene.GameObjects[0].Components[0].SetActive(true);
-            // loadedScene.GameObjects[0].SeActive(true);
-
-            GameObject test = new GameObject
-            {
-                Name = "TestGameObject3", IsActive = true, Components =
-                {
-                    new TestComponent
-                    {
-                        IsActive = true
-                    }
-                }
-            };
-            
-            
-            Transform transform = new Transform
-            {
-                IsActive = true,
-            };
-            
-            loadedScene.Instantiate(test, loadedScene.GameObjects[0]);
-            // test.AddComponent(transform);
-            // loadedScene.Destroy(test);
-        //    Debug.ShowLogs();
-            Task.Run(() => ExecuteFixedUpdateLoop(loadedScene));
-            ExecuteUpdateLoop(loadedScene);
+            return false;
         }
-
-
-        private static void InvokeOnEnableRecursive(GameObject gameObject)
+        
+        private static void InvokeRecursive(GameObject gameObject, string methodName)
         {
             if (gameObject.IsActive)
             {
-                gameObject.InvokeMethodInComponents("OnEnable");
+                gameObject.InvokeMethodInComponents(methodName);
             }
 
             foreach (var child in gameObject.Children)
             {
-                InvokeOnEnableRecursive(child);
+                InvokeRecursive(child, methodName);
             }
         }
-
-        private static void InvokeStartRecursive(GameObject gameObject)
-        {
-            if (gameObject.IsActive)
-            {
-                gameObject.InvokeMethodInComponents("Start");
-            }
-
-            foreach (var child in gameObject.Children)
-            {
-                InvokeStartRecursive(child);
-            }
-        }
-
         private static void ExecuteUpdateLoop(Scene.Scene scene)
         {
             while (true)
@@ -206,7 +193,6 @@ namespace DustyEngine
                 }
             }
         }
-
         private static void ExecuteFixedUpdateLoop(Scene.Scene scene)
         {
             var targetElapsedTime = TimeSpan.FromMilliseconds(1);
@@ -244,59 +230,13 @@ namespace DustyEngine
     }
 }
 
-public class TestComponent : Component
+public class ProjectSettings
 {
-    public int TestNumber { get; set; }
-    public string TestString { get; set; }
-    private int i = 0;
-    private int b = 0;
-    private DateTime lastUpdateTime;
-    private DateTime lastFixedUpdateTime;
-
-    public void OnEnable()
-    {
-        lastUpdateTime = DateTime.Now;
-        lastFixedUpdateTime = DateTime.Now;
-    }
-    
-    public void OnDisable()
-    {
-    }
-
-    public void OnDestroy()
-    {
-    }
-
-    public void Start()
-    {  
-        foreach (var parentComponent in Parent.Components)
-        {
-            //   Debug.Log(parentComponent.GetType().Name);
-        }
-         
-       // Console.WriteLine(Parent.GetComponent<Transform>());
-        
-       //  Parent.GetComponent<Player>().SetActive(false);
-        //Parent.GetComponent<Player>().Parent.SetActive(false);
-    }
-
-    public void Update()
-    {
-        TimeSpan timeSinceLastUpdate = DateTime.Now - lastUpdateTime;
-
-        lastUpdateTime = DateTime.Now;
-        i++;
-        // Console.WriteLine(
-        //S      $"Execute Update on: {Parent.Name} {GetType().Name} {i} (Time since last update: {timeSinceLastUpdate.TotalMilliseconds:F2} ms)");
-    }
-
-    public void FixedUpdate()
-    {
-        TimeSpan timeSinceLastFixedUpdate = DateTime.Now - lastFixedUpdateTime;
-
-        lastFixedUpdateTime = DateTime.Now;
-        b++;
-        //  Console.WriteLine(
-        //    $"Execute FixedUpdate on: {Parent.Name} {GetType().Name} {b} (Time since last fixed update: {timeSinceLastFixedUpdate.TotalMilliseconds:F2} ms)");
-    }
+    public string ProjectName { get; set; }
+    public float Version { get; set; }
+    public List<string> PathToScenes { get; set; }
+    public bool Debug { get; set; }
+    public Debug.LogLevel LogLevel { get; set; }
+    public bool LogToConsole { get; set; }
+    public bool LogToFile { get; set; }
 }

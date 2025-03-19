@@ -18,6 +18,6 @@ public class Player : Component
 
     public void Start()
     {
-        Debug.Log(Parent.GetComponent<Transform>());
+        // Debug.Log(Parent.GetComponent<Transform>());
     }
 }

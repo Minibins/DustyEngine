@@ -1,0 +1,9 @@
+{
+  "ProjectName": "My Game",
+  "Version": 1,
+  "PathToScenes": [],
+  "Debug": false,
+  "LogLevel": 0,
+  "LogToConsole": true,
+  "LogToFile": true
+}
