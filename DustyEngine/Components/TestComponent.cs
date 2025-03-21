@@ -1,6 +1,7 @@
-﻿using DustyEngine.Components;
+﻿using DustyEngine;
+using DustyEngine.Components;
 
-public class TestComponent : Component
+public class TestComponent : MonoBehaviour
 {
     public int TestNumber { get; set; }
     public string TestString { get; set; }
@@ -25,6 +26,9 @@ public class TestComponent : Component
 
     public void Start()
     {
+      //  Console.WriteLine(gameObject.Name);
+        
+        
         foreach (var parentComponent in Parent.Components)
         {
             //   Debug.Log(parentComponent.GetType().Name);
@@ -42,8 +46,7 @@ public class TestComponent : Component
 
         lastUpdateTime = DateTime.Now;
         i++;
-        // Console.WriteLine(
-        //S      $"Execute Update on: {Parent.Name} {GetType().Name} {i} (Time since last update: {timeSinceLastUpdate.TotalMilliseconds:F2} ms)");
+        // Console.WriteLine($"Execute Update on: {Parent.Name} {GetType().Name} {i} (Time since last update: {timeSinceLastUpdate.TotalMilliseconds:F2} ms)");
     }
 
     public void FixedUpdate()
@@ -52,7 +55,7 @@ public class TestComponent : Component
 
         lastFixedUpdateTime = DateTime.Now;
         b++;
-        //  Console.WriteLine(
-        //    $"Execute FixedUpdate on: {Parent.Name} {GetType().Name} {b} (Time since last fixed update: {timeSinceLastFixedUpdate.TotalMilliseconds:F2} ms)");
+        // Console.WriteLine(
+        //   $"Execute FixedUpdate on: {Parent.Name} {GetType().Name} {b} (Time since last fixed update: {timeSinceLastFixedUpdate.TotalMilliseconds:F2} ms)");
     }
 }

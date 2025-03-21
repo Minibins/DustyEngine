@@ -1,9 +1,10 @@
 using DustyEngine.Components;
 using System;
 using DustyEngine_V3;
+using DustyEngine;
 using DustyEngine.Scene;
 
-public class Player : Component
+public class Player : MonoBehaviour
 {
     public string Message { get; set; } = "Hello from DLL!";
 

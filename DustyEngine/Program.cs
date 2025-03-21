@@ -14,9 +14,9 @@ namespace DustyEngine
         static void Main(string[] args)
         {
             Debug.ClearLogs();
-            
+
             ProjectFolderPath = "C:\\Users\\maksym\\Documents\\GitHub\\DustyEngine\\DustyEngine\\Project";
-            
+
             ProjectSettings projectSettings = new ProjectSettings
             {
                 ProjectName = "My Game",
@@ -29,7 +29,7 @@ namespace DustyEngine
             };
 
             SerializeProjectSettings(projectSettings);
-            
+
             Debug.Log("Starting Dusty Engine", Debug.LogLevel.Info, false);
 
             if (ProjectFolderPath != null)
@@ -51,7 +51,7 @@ namespace DustyEngine
             Debug.Log("Test WARNING", Debug.LogLevel.Warning, true);
             Debug.Log("Test ERROR", Debug.LogLevel.Error, true);
             Debug.Log("Test FATAL", Debug.LogLevel.FatalError, true);
-            
+
             if (LoadScene(out var loadedScene)) return;
 
             foreach (var method in new[] { "OnEnable", "Start" })
@@ -74,25 +74,34 @@ namespace DustyEngine
             // loadedScene.GameObjects[0].SeActive(false);
             // loadedScene.GameObjects[0].Components[0].SetActive(true);
             // loadedScene.GameObjects[0].SeActive(true);
-
+            
             GameObject test = new GameObject
             {
                 Name = "TestGameObject3", IsActive = true, Components =
                 {
                     new TestComponent
                     {
-                        IsActive = true
+                   Enabled = true,
+                    }
+                }
+            };
+            
+            GameObject test2 = new GameObject
+            {
+                Name = "TestGameObject4", IsActive = true, Components =
+                {
+                    new TestComponent
+                    {
+                        Enabled = true,
                     }
                 }
             };
 
 
-            Transform transform = new Transform
-            {
-                IsActive = true,
-            };
+            Transform transform = new Transform();
 
             loadedScene.Instantiate(test, loadedScene.GameObjects[0]);
+            loadedScene.Instantiate(test2, test);
             // test.AddComponent(transform);
             // loadedScene.Destroy(test);
             //    Debug.ShowLogs();
@@ -117,6 +126,7 @@ namespace DustyEngine
                 }
             }
         }
+
         private static void SerializeProjectSettings(ProjectSettings projectSettings)
         {
             string json = JsonSerializer.Serialize(projectSettings, new JsonSerializerOptions { WriteIndented = true });
@@ -161,7 +171,7 @@ namespace DustyEngine
 
             return false;
         }
-        
+
         private static void InvokeRecursive(GameObject gameObject, string methodName)
         {
             if (gameObject.IsActive)
@@ -174,6 +184,7 @@ namespace DustyEngine
                 InvokeRecursive(child, methodName);
             }
         }
+
         private static void ExecuteUpdateLoop(Scene.Scene scene)
         {
             while (true)
@@ -183,13 +194,19 @@ namespace DustyEngine
                     if (!gameObject.IsActive) continue;
                     foreach (var component in gameObject.Components ?? Enumerable.Empty<Component>())
                     {
-                        var updateMethod = component.GetType().GetMethod("Update",
-                            BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic);
-                        updateMethod?.Invoke(component, null);
+                        if (component is MonoBehaviour monoBehaviour)
+                        {
+                            if (!monoBehaviour.Enabled) continue;
+
+                            var updateMethod = component.GetType().GetMethod("Update",
+                                BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic);
+                            updateMethod?.Invoke(component, null);
+                        }
                     }
                 }
             }
         }
+
         private static void ExecuteFixedUpdateLoop(Scene.Scene scene)
         {
             var targetElapsedTime = TimeSpan.FromMilliseconds(1);
@@ -212,8 +229,13 @@ namespace DustyEngine
                         {
                             foreach (var component in gameObject.Components)
                             {
-                                var fixedUpdateMethod = component.GetType().GetMethod("FixedUpdate");
-                                fixedUpdateMethod?.Invoke(component, null);
+                                if (component is MonoBehaviour monoBehaviour)
+                                {
+                                    if (!monoBehaviour.Enabled) continue;
+                                    
+                                    var fixedUpdateMethod1 = monoBehaviour.GetType().GetMethod("FixedUpdate");
+                                    fixedUpdateMethod1?.Invoke(component, null);
+                                }
                             }
                         }
                     }

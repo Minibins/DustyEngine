@@ -1,9 +1,11 @@
 ﻿using System.Reflection;
 using System.Text.Json.Serialization;
 using DustyEngine_V3;
+using DustyEngine;
 using DustyEngine.Components;
+using Object = DustyEngine.Object;
 
-public class GameObject
+public class GameObject : Object
 {
     public string Name { get; set; }
     public bool IsActive { get; set; }
@@ -49,17 +51,20 @@ public class GameObject
             Debug.Log($"[{Name}] has no components. Skipping {methodName} execution.", Debug.LogLevel.Warning, true);
             return;
         }
-
+        
         foreach (Component component in Components)
         {
             component.Parent = this;
 
-            if (!component.IsActive || !IsActive)
+            if (component is MonoBehaviour monoBehaviour)
             {
-                Debug.Log(
-                    $"Skipping {methodName} on [{component.GetType().Name}] in [{Name}]: GameObject or component is inactive",
-                    Debug.LogLevel.Info, true);
-                continue;
+                if (!monoBehaviour.Enabled || !IsActive)
+                {
+                    Debug.Log(
+                        $"Skipping {methodName} on [{component.GetType().Name}] in [{Name}]: GameObject or component is inactive",
+                        Debug.LogLevel.Info, true);
+                    continue;
+                }
             }
 
             try
@@ -68,13 +73,17 @@ public class GameObject
                     BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic);
 
                 if (method == null)
-                {
                     continue;
-                }
 
-                Debug.Log($"Executing [{component.GetType().Name}.{methodName}] on [{Name}]", Debug.LogLevel.Info,
-                    true);
-                method.Invoke(component, null);
+             
+                bool isLifecycleMethod = methodName is "OnEnable" or "OnDisable" or "OnDestroy";
+                
+                if ((isLifecycleMethod && component is Behaviour) ||
+                    (!isLifecycleMethod && component is MonoBehaviour))
+                {
+                    Debug.Log($"Executing [{component.GetType().Name}.{methodName}] on [{Name}]", Debug.LogLevel.Info, true);
+                    method.Invoke(component, null);
+                }
             }
             catch (Exception ex)
             {
