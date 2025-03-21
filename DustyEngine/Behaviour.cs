@@ -1,4 +1,5 @@
 ﻿using System.Reflection;
+using System.Text.Json.Serialization;
 using DustyEngine_V3;
 using DustyEngine.Components;
 
@@ -8,7 +9,7 @@ public class Behaviour: Component
 {
     public bool Enabled { get; set; } = true;
 
-    public bool IsActiveAndEnabled => Parent?.IsActive == true && Enabled;
+  [JsonIgnore]  public bool IsActiveAndEnabled => Parent?.IsActive == true && Enabled;
     
     public void SetActive(bool active)
     {

@@ -4,9 +4,9 @@ namespace DustyEngine.Components
 {
     public class Transform : Component
     {
-        private Vector3 _localPosition = new Vector3(0, 0, 0);
-        private Vector3 _localRotation = new Vector3(0, 0, 0);
-        private Vector3 _localScale = new Vector3(1, 1, 1);
+        [JsonIgnore] private Vector3 _localPosition = new Vector3(0, 0, 0);
+        [JsonIgnore] private Vector3 _localRotation = new Vector3(0, 0, 0);
+        [JsonIgnore] private Vector3 _localScale = new Vector3(1, 1, 1);
 
         public Vector3 LocalPosition
         {
@@ -26,8 +26,7 @@ namespace DustyEngine.Components
             set { _localScale = value; }
         }
 
-        [JsonIgnore]
-        public Vector3 GlobalPosition
+        [JsonIgnore]public Vector3 GlobalPosition
         {
             get
             {
@@ -39,8 +38,7 @@ namespace DustyEngine.Components
             }
         }
 
-        [JsonIgnore]
-        public Vector3 GlobalRotation
+        [JsonIgnore] public Vector3 GlobalRotation
         {
             get
             {
@@ -52,8 +50,7 @@ namespace DustyEngine.Components
             }
         }
 
-        [JsonIgnore]
-        public Vector3 GlobalScale
+        [JsonIgnore] public Vector3 GlobalScale
         {
             get
             {

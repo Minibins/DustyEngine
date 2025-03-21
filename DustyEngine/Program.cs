@@ -1,5 +1,6 @@
 ﻿using System.Reflection;
 using System.Text.Json;
+using System.Text.Json.Serialization;
 using DustyEngine_V3;
 using DustyEngine.Components;
 using DustyEngine.Json.Converters;
@@ -21,7 +22,10 @@ namespace DustyEngine
             {
                 ProjectName = "My Game",
                 Version = 1.0f,
-                PathToScenes = new List<String>(),
+                PathToScenes = new List<String>
+                {
+                    "C:\\Users\\maksym\\Documents\\GitHub\\DustyEngine\\DustyEngine\\DustyEngineTestScene.json",
+                },
                 Debug = false,
                 LogLevel = Debug.LogLevel.Info,
                 LogToConsole = true,
@@ -51,8 +55,54 @@ namespace DustyEngine
             Debug.Log("Test WARNING", Debug.LogLevel.Warning, true);
             Debug.Log("Test ERROR", Debug.LogLevel.Error, true);
             Debug.Log("Test FATAL", Debug.LogLevel.FatalError, true);
+            
+            var scene = new Scene.Scene
+            {
+                Name = "DustyEngineTestScene"
+            };
 
-            if (LoadScene(out var loadedScene)) return;
+            GameObject obj0 = new GameObject
+            {
+                Name = "TestGameObject0",
+                Components =
+                {
+                    new Transform
+                    {
+                        LocalPosition = new Vector3(0, 0, 1),
+                    },
+                    new TestComponent
+                    {
+                        Enabled = true,
+                        TestNumber = 21,
+                        TestString = "TestString",
+                    }
+                }
+            };
+
+            var playerScript = ComponentConverter.LoadOrCompileComponent(
+                "C:\\Users\\maksym\\Documents\\GitHub\\DustyEngine\\DustyEngine\\Project\\Player.cs"
+            );
+            obj0.Components.Add(playerScript);
+            
+            scene.GameObjects.Add(obj0);
+            
+            GameObject obj1 = new GameObject
+            {
+                Name = "TestGameObject1",
+                Components =
+                {
+                    new Transform
+                    {
+                        LocalPosition = new Vector3(0, 0, 1),
+                    }
+                }
+            };
+
+            scene.GameObjects[0].AddChild(obj1);
+            
+            
+           // SaveScene(scene, "C:\\Users\\maksym\\Documents\\GitHub\\DustyEngine\\DustyEngine\\DustyEngineTestScene.json");
+            if (LoadScene(out var loadedScene, projectSettings.PathToScenes.FirstOrDefault())) return;
 
             foreach (var method in new[] { "OnEnable", "Start" })
             {
@@ -74,18 +124,18 @@ namespace DustyEngine
             // loadedScene.GameObjects[0].SeActive(false);
             // loadedScene.GameObjects[0].Components[0].SetActive(true);
             // loadedScene.GameObjects[0].SeActive(true);
-            
+
             GameObject test = new GameObject
             {
                 Name = "TestGameObject3", IsActive = true, Components =
                 {
                     new TestComponent
                     {
-                   Enabled = true,
+                        Enabled = true,
                     }
                 }
             };
-            
+
             GameObject test2 = new GameObject
             {
                 Name = "TestGameObject4", IsActive = true, Components =
@@ -133,14 +183,11 @@ namespace DustyEngine
             File.WriteAllText(Path.Combine(ProjectFolderPath, "project_settings.json"), json);
         }
 
-        private static bool LoadScene(out Scene.Scene? loadedScene)
+        private static bool LoadScene(out Scene.Scene? loadedScene, string scenePath)
         {
             loadedScene = new Scene.Scene();
             try
             {
-                string scenePath =
-                    "C:\\Users\\maksym\\Documents\\GitHub\\DustyEngine\\DustyEngine\\DustyEngineTestScene.json";
-
                 Debug.Log($"Starting scene loading from: {scenePath}", Debug.LogLevel.Info, true);
 
                 if (!File.Exists(scenePath))
@@ -170,6 +217,36 @@ namespace DustyEngine
             }
 
             return false;
+        }
+
+        private static bool SaveScene(Scene.Scene sceneToSave, string scenePath)
+        {
+            try
+            {
+                Debug.Log($"Saving scene to: {scenePath}", Debug.LogLevel.Info, true);
+
+                var options = new JsonSerializerOptions
+                {
+                    WriteIndented = true,
+                    IncludeFields = true,
+                    Converters =
+                    {
+                        new ComponentConverter(),
+                        new SceneConverter()
+                    }
+                };
+
+                string json = JsonSerializer.Serialize(sceneToSave, options);
+                File.WriteAllText(scenePath, json);
+
+                Debug.Log("Scene successfully saved!", Debug.LogLevel.Info, false);
+                return true;
+            }
+            catch (Exception ex)
+            {
+                Debug.Log($"Error saving scene: {ex.Message}", Debug.LogLevel.FatalError, false);
+                return false;
+            }
         }
 
         private static void InvokeRecursive(GameObject gameObject, string methodName)
@@ -232,7 +309,7 @@ namespace DustyEngine
                                 if (component is MonoBehaviour monoBehaviour)
                                 {
                                     if (!monoBehaviour.Enabled) continue;
-                                    
+
                                     var fixedUpdateMethod1 = monoBehaviour.GetType().GetMethod("FixedUpdate");
                                     fixedUpdateMethod1?.Invoke(component, null);
                                 }

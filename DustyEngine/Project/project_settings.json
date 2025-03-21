@@ -1,7 +1,9 @@
 {
   "ProjectName": "My Game",
   "Version": 1,
-  "PathToScenes": [],
+  "PathToScenes": [
+    "C:\\Users\\maksym\\Documents\\GitHub\\DustyEngine\\DustyEngine\\DustyEngineTestScene.json"
+  ],
   "Debug": false,
   "LogLevel": 0,
   "LogToConsole": true,

@@ -1,12 +1,11 @@
 ﻿using DustyEngine;
-using DustyEngine.Components;
 
 public class TestComponent : MonoBehaviour
 {
     public int TestNumber { get; set; }
     public string TestString { get; set; }
     private int i = 0;
-    private int b = 0;
+    [SerializeField] private int b = 0;
     private DateTime lastUpdateTime;
     private DateTime lastFixedUpdateTime;
 
@@ -26,9 +25,10 @@ public class TestComponent : MonoBehaviour
 
     public void Start()
     {
-      //  Console.WriteLine(gameObject.Name);
-        
-        
+        //  GetComponent<Player>().Test();
+        //  Console.WriteLine(gameObject.Name);
+
+
         foreach (var parentComponent in Parent.Components)
         {
             //   Debug.Log(parentComponent.GetType().Name);

@@ -8,13 +8,17 @@ using Object = DustyEngine.Object;
 public class GameObject : Object
 {
     public string Name { get; set; }
-    public bool IsActive { get; set; }
+    public bool IsActive { get; set; } = true;
 
     public List<GameObject> Children { get; set; } = new List<GameObject>();
     public List<Component> Components { get; set; } = new List<Component>();
 
     [JsonIgnore] public GameObject Parent { get; set; }
 
+    public GameObject(string name = "New GameObject")
+    {
+        Name = name;
+    }
     public void SetActive(bool isActive)
     {
         InvokeMethodInComponents(isActive ? "OnEnable" : "OnDisable");
@@ -30,7 +34,11 @@ public class GameObject : Object
         component.Parent = this;
         Debug.Log($"Added component [{component.GetType().Name}] to GameObject [{Name}]", Debug.LogLevel.Info, true);
     }
-
+    public void AddChild(GameObject child)
+    {
+        child.Parent = this;
+        Children.Add(child);
+    }
     public void Destroy()
     {
         InvokeMethodInComponents("OnDestroy");
@@ -39,6 +47,9 @@ public class GameObject : Object
 
     public T? GetComponent<T>() where T : Component
     {
+        if (Components == null || Components.Count == 0)
+            return null;
+
         return Components.OfType<T>().FirstOrDefault();
     }
 

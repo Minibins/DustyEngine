@@ -36,16 +36,25 @@ namespace DustyEngine.Json.Converters
                 {
                     string sourcePath = externalSourcePath.GetString();
                     Debug.Log($"Source Path: {sourcePath}", Debug.LogLevel.Info, true);
+
                     Component? externalComponent = LoadOrCompileComponent(sourcePath);
+                    if (externalComponent != null)
+                    {
+                        componentType = externalComponent.GetType();
+                    }
                 }
 
-                var newOptions = new JsonSerializerOptions(options) { Converters = { this } };
+                var newOptions = new JsonSerializerOptions(options)
+                {
+                    Converters = { this }
+                };
+
                 return (Component)JsonSerializer.Deserialize(doc.RootElement.GetRawText(), componentType, newOptions)!;
             }
         }
 
 
-        private Component? LoadOrCompileComponent(string path)
+        public static Component? LoadOrCompileComponent(string path)
         {
             string typeName = Path.GetFileNameWithoutExtension(path);
             if (Path.GetExtension(path).Equals(".dll", StringComparison.OrdinalIgnoreCase))
@@ -68,7 +77,7 @@ namespace DustyEngine.Json.Converters
         }
 
 
-        private Component? LoadComponentFromDll(string dllPath, string typeName)
+        private static Component? LoadComponentFromDll(string dllPath, string typeName)
         {
             try
             {
@@ -79,9 +88,9 @@ namespace DustyEngine.Json.Converters
                     Debug.Log($"Type '{typeName}' not found in '{dllPath}'", Debug.LogLevel.Error);
                     return null;
                 }
-                
+
                 Debug.Log($"Compiling source: {dllPath}, detected typeName: {typeName}", Debug.LogLevel.Info, true);
-                
+
                 Debug.Log($"Loading component from assembly: {assembly.FullName}", Debug.LogLevel.Info, true);
 
                 return (Component)Activator.CreateInstance(type);
@@ -94,7 +103,7 @@ namespace DustyEngine.Json.Converters
         }
 
 
-        private string CompileSourceToDll(string sourcePath)
+        private static string CompileSourceToDll(string sourcePath)
         {
             string outputDirectory = Path.Combine(Program.ProjectFolderPath, "Dlls");
 
@@ -169,39 +178,110 @@ namespace DustyEngine.Json.Converters
                     throw new Exception();
                 }
             }
-            
+
             Debug.Log($"Compiled new DLL at: {outputDllPath}", Debug.LogLevel.Info, true);
             return outputDllPath;
         }
 
 
-        public override void Write(Utf8JsonWriter writer, Component value, JsonSerializerOptions options)
+public override void Write(Utf8JsonWriter writer, Component value, JsonSerializerOptions options)
+{
+    writer.WriteStartObject();
+    writer.WriteString("Type", value.GetType().Name);
+
+    var type = value.GetType();
+    var members = type.GetMembers(BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic);
+
+    foreach (var member in members)
+    {
+        if (member.Name.Contains("k__BackingField"))
+            continue;
+
+        if (HasJsonIgnore(member, type))
+            continue;
+
+        bool shouldSerialize = false;
+
+        if (member is FieldInfo field)
         {
-            writer.WriteStartObject();
-            writer.WriteString("Type", value.GetType().Name);
-
-            var type = value.GetType();
-
-            foreach (var member in
-                     type.GetMembers(BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance))
-            {
-                if (member.Name.Contains("k__BackingField")) continue;
-
-                object? memberValue = member switch
-                {
-                    PropertyInfo prop when prop.CanRead => prop.GetValue(value),
-                    FieldInfo field => field.GetValue(value),
-                    _ => null
-                };
-
-                if (memberValue != null)
-                {
-                    writer.WritePropertyName(member.Name);
-                    JsonSerializer.Serialize(writer, memberValue, options);
-                }
-            }
-
-            writer.WriteEndObject();
+            shouldSerialize = field.IsPublic || field.GetCustomAttribute<SerializeFieldAttribute>() != null;
         }
+        else if (member is PropertyInfo prop)
+        {
+            // Публичное свойство с get
+            if (prop.CanRead && prop.GetMethod?.IsPublic == true)
+                shouldSerialize = true;
+
+            // Или приватное с [SerializeField]
+            if (prop.GetCustomAttribute<SerializeFieldAttribute>() != null && prop.CanRead)
+                shouldSerialize = true;
+        }
+
+        if (!shouldSerialize)
+            continue;
+
+        object? valueToWrite = null;
+
+        try
+        {
+            valueToWrite = member switch
+            {
+                FieldInfo f => f.GetValue(value),
+                PropertyInfo p => p.GetValue(value),
+                _ => null
+            };
+        }
+        catch (Exception ex)
+        {
+            Debug.Log($"[Warning] Skipping '{member.Name}': {ex.Message}", Debug.LogLevel.Warning);
+            continue;
+        }
+
+        if (valueToWrite != null)
+        {
+            try
+            {
+                writer.WritePropertyName(member.Name);
+                JsonSerializer.Serialize(writer, valueToWrite, options);
+            }
+            catch (Exception ex)
+            {
+                Debug.Log($"[Warning] Failed to serialize '{member.Name}': {ex.Message}", Debug.LogLevel.Warning);
+            }
+        }
+    }
+
+    writer.WriteEndObject();
+}
+private static bool HasJsonIgnore(MemberInfo member, Type declaringType)
+{
+    // Прямо на члене
+    if (member.GetCustomAttribute<JsonIgnoreAttribute>() != null)
+        return true;
+
+    // Если это свойство — ищем оригинал в типе
+    if (member is PropertyInfo prop)
+    {
+        var realProp = declaringType.GetProperty(prop.Name,
+            BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic);
+
+        if (realProp?.GetCustomAttribute<JsonIgnoreAttribute>() != null)
+            return true;
+    }
+
+    // То же самое для полей
+    if (member is FieldInfo field)
+    {
+        var realField = declaringType.GetField(field.Name,
+            BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic);
+
+        if (realField?.GetCustomAttribute<JsonIgnoreAttribute>() != null)
+            return true;
+    }
+
+    return false;
+}
+
+
     }
 }

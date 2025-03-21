@@ -6,7 +6,7 @@
       "IsActive": true,
       "Children": [
         {
-          "Name": "TestGameObject1",
+          "Name": "TestGameObject2",
           "IsActive": true,
           "Children": [],
           "Components": [
@@ -15,7 +15,7 @@
               "LocalPosition": {
                 "X": 0,
                 "Y": 0,
-                "Z": 1
+                "Z": 0
               },
               "LocalRotation": {
                 "X": 0,
@@ -33,11 +33,26 @@
       ],
       "Components": [
         {
+          "Type": "TestComponent",
+          "TestNumber": 20,
+          "TestString": "Hello World",
+          "Enable": false,
+          "i": 0,
+          "b": 0,
+          "lastUpdateTime": null,
+          "lastFixedUpdateTime": null
+        },
+        {
+          "Type":"Player",
+          "sourcePath": "C:\\Users\\maksym\\Documents\\GitHub\\DustyEngine\\DustyEngine\\Project\\Player.cs",
+          "Enable": true
+        },
+        {
           "Type": "Transform",
           "LocalPosition": {
             "X": 0,
             "Y": 0,
-            "Z": 1
+            "Z": 0
           },
           "LocalRotation": {
             "X": 0,
@@ -49,18 +64,6 @@
             "Y": 1,
             "Z": 1
           }
-        },
-        {
-          "Type": "TestComponent",
-          "TestNumber": 21,
-          "TestString": "TestString",
-          "Enabled": true,
-          "b": 0
-        },
-        {
-          "Type": "Player",
-          "Message": "Hello from DLL!",
-          "Enabled": true
         }
       ]
     }
