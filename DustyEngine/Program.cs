@@ -24,7 +24,7 @@ namespace DustyEngine
                 Version = 1.0f,
                 PathToScenes = new List<String>
                 {
-                    "C:\\Users\\maksym\\Documents\\GitHub\\DustyEngine\\DustyEngine\\DustyEngineTestScene.json",
+                    "C:\\Users\\maksym\\Documents\\GitHub\\DustyEngine\\DustyEngine\\Project\\DustyEngineTestScene.json",
                 },
                 Debug = false,
                 LogLevel = Debug.LogLevel.Info,
@@ -101,7 +101,7 @@ namespace DustyEngine
             scene.GameObjects[0].AddChild(obj1);
             
             
-           // SaveScene(scene, "C:\\Users\\maksym\\Documents\\GitHub\\DustyEngine\\DustyEngine\\DustyEngineTestScene.json");
+            SaveScene(scene, "C:\\Users\\maksym\\Documents\\GitHub\\DustyEngine\\DustyEngine\\Project\\DustyEngineTestScene.json");
             if (LoadScene(out var loadedScene, projectSettings.PathToScenes.FirstOrDefault())) return;
 
             foreach (var method in new[] { "OnEnable", "Start" })
