@@ -2,7 +2,9 @@
 using System.Text.Json;
 using DustyEngine;
 using DustyEngine.Components;
+using DustyEngine.GraphicsEngineOpneGL;
 using DustyEngine.Json.Converters;
+using ImGuiNET;
 
 
 namespace DustyEngine
@@ -15,7 +17,7 @@ namespace DustyEngine
         static void Main(string[] args)
         {
             Debug.ClearLogs();
-            
+
             ProjectFolderPath = "C:\\Users\\maksym\\Documents\\GitHub\\DustyEngine\\DustyEngine\\Project";
 
             ProjectSettings projectSettings = new ProjectSettings
@@ -97,7 +99,7 @@ namespace DustyEngine
                     }
                 }
             };
-
+        
             scene.GameObjects[0].AddChild(obj1);
 
 
@@ -115,11 +117,11 @@ namespace DustyEngine
 
             TestScene(loadedScene);
             
-            GraphicsEngine_OpenGL.GraphicsEngineOpenGl graphicsEngineOpenGl = new GraphicsEngine_OpenGL.GraphicsEngineOpenGl();
-            graphicsEngineOpenGl.Start();
-
             Task.Run(() => ExecuteFixedUpdateLoop(loadedScene));
-            ExecuteUpdateLoop(loadedScene);
+            GraphicsEngineOpenGl graphicsEngineOpenGl = new GraphicsEngineOpenGl();
+
+            Action updateAction = () => ExecuteUpdateLoop(loadedScene);
+            graphicsEngineOpenGl.RunMainLoop(updateAction);
         }
 
         private static void TestScene(Scene.Scene? loadedScene)
@@ -267,21 +269,18 @@ namespace DustyEngine
 
         private static void ExecuteUpdateLoop(Scene.Scene scene)
         {
-            while (true)
+            foreach (var gameObject in scene.GameObjects ?? Enumerable.Empty<GameObject>())
             {
-                foreach (var gameObject in scene.GameObjects ?? Enumerable.Empty<GameObject>())
+                if (!gameObject.IsActive) continue;
+                foreach (var component in gameObject.Components ?? Enumerable.Empty<Component>())
                 {
-                    if (!gameObject.IsActive) continue;
-                    foreach (var component in gameObject.Components ?? Enumerable.Empty<Component>())
+                    if (component is MonoBehaviour monoBehaviour)
                     {
-                        if (component is MonoBehaviour monoBehaviour)
-                        {
-                            if (!monoBehaviour.Enabled) continue;
+                        if (!monoBehaviour.Enabled) continue;
 
-                            var updateMethod = component.GetType().GetMethod("Update",
-                                BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic);
-                            updateMethod?.Invoke(component, null);
-                        }
+                        var updateMethod = component.GetType().GetMethod("Update",
+                            BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic);
+                        updateMethod?.Invoke(component, null);
                     }
                 }
             }

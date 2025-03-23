@@ -46,7 +46,7 @@ public class TestComponent : MonoBehaviour
 
         lastUpdateTime = DateTime.Now;
         i++;
-        // Console.WriteLine($"Execute Update on: {Parent.Name} {GetType().Name} {i} (Time since last update: {timeSinceLastUpdate.TotalMilliseconds:F2} ms)");
+            //  Console.WriteLine($"Execute Update on: {Parent.Name} {GetType().Name} {i} (Time since last update: {timeSinceLastUpdate.TotalMilliseconds:F2} ms)");
     }
 
     public void FixedUpdate()
