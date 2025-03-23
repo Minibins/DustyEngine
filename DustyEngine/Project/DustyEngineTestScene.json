@@ -2,11 +2,9 @@
   "Name": "DustyEngineTestScene",
   "GameObjects": [
     {
-      "Name": "TestGameObject0",
       "IsActive": true,
       "Children": [
         {
-          "Name": "TestGameObject1",
           "IsActive": true,
           "Children": [],
           "Components": [
@@ -26,9 +24,11 @@
                 "X": 1,
                 "Y": 1,
                 "Z": 1
-              }
+              },
+              "Name": "\u003CNo GameObject\u003E"
             }
-          ]
+          ],
+          "Name": "TestGameObject1"
         }
       ],
       "Components": [
@@ -48,21 +48,25 @@
             "X": 1,
             "Y": 1,
             "Z": 1
-          }
+          },
+          "Name": "\u003CNo GameObject\u003E"
         },
         {
           "Type": "TestComponent",
           "TestNumber": 21,
           "TestString": "TestString",
           "Enabled": true,
+          "Name": "\u003CNo GameObject\u003E",
           "b": 0
         },
         {
           "Type": "Player",
           "Message": "Hello from DLL!",
-          "Enabled": true
+          "Enabled": true,
+          "Name": "\u003CNo GameObject\u003E"
         }
-      ]
+      ],
+      "Name": "TestGameObject0"
     }
   ],
   "Components": []

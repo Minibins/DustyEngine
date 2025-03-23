@@ -1,9 +1,9 @@
 ﻿using System.Reflection;
 using System.Text.Json;
-using System.Text.Json.Serialization;
-using DustyEngine_V3;
+using DustyEngine;
 using DustyEngine.Components;
 using DustyEngine.Json.Converters;
+
 
 namespace DustyEngine
 {
@@ -15,7 +15,7 @@ namespace DustyEngine
         static void Main(string[] args)
         {
             Debug.ClearLogs();
-
+            
             ProjectFolderPath = "C:\\Users\\maksym\\Documents\\GitHub\\DustyEngine\\DustyEngine\\Project";
 
             ProjectSettings projectSettings = new ProjectSettings
@@ -55,7 +55,7 @@ namespace DustyEngine
             Debug.Log("Test WARNING", Debug.LogLevel.Warning, true);
             Debug.Log("Test ERROR", Debug.LogLevel.Error, true);
             Debug.Log("Test FATAL", Debug.LogLevel.FatalError, true);
-            
+
             var scene = new Scene.Scene
             {
                 Name = "DustyEngineTestScene"
@@ -83,9 +83,9 @@ namespace DustyEngine
                 "C:\\Users\\maksym\\Documents\\GitHub\\DustyEngine\\DustyEngine\\Project\\Player.cs"
             );
             obj0.Components.Add(playerScript);
-            
+
             scene.GameObjects.Add(obj0);
-            
+
             GameObject obj1 = new GameObject
             {
                 Name = "TestGameObject1",
@@ -99,9 +99,10 @@ namespace DustyEngine
             };
 
             scene.GameObjects[0].AddChild(obj1);
-            
-            
-            SaveScene(scene, "C:\\Users\\maksym\\Documents\\GitHub\\DustyEngine\\DustyEngine\\Project\\DustyEngineTestScene.json");
+
+
+            SaveScene(scene,
+                "C:\\Users\\maksym\\Documents\\GitHub\\DustyEngine\\DustyEngine\\Project\\DustyEngineTestScene.json");
             if (LoadScene(out var loadedScene, projectSettings.PathToScenes.FirstOrDefault())) return;
 
             foreach (var method in new[] { "OnEnable", "Start" })
@@ -113,7 +114,9 @@ namespace DustyEngine
             }
 
             TestScene(loadedScene);
-
+            
+            GraphicsEngine_OpenGL.GraphicsEngineOpenGl graphicsEngineOpenGl = new GraphicsEngine_OpenGL.GraphicsEngineOpenGl();
+            graphicsEngineOpenGl.Start();
 
             Task.Run(() => ExecuteFixedUpdateLoop(loadedScene));
             ExecuteUpdateLoop(loadedScene);
@@ -159,7 +162,7 @@ namespace DustyEngine
 
         private static void DeserializeProjectSettings()
         {
-            string filePath = Path.Combine(ProjectFolderPath, "project_settings.json");
+            string filePath = Path.Combine(ProjectFolderPath, "Settings/project_settings.json");
 
             if (!File.Exists(filePath))
             {
@@ -180,7 +183,7 @@ namespace DustyEngine
         private static void SerializeProjectSettings(ProjectSettings projectSettings)
         {
             string json = JsonSerializer.Serialize(projectSettings, new JsonSerializerOptions { WriteIndented = true });
-            File.WriteAllText(Path.Combine(ProjectFolderPath, "project_settings.json"), json);
+            File.WriteAllText(Path.Combine(ProjectFolderPath, "Settings/project_settings.json"), json);
         }
 
         private static bool LoadScene(out Scene.Scene? loadedScene, string scenePath)

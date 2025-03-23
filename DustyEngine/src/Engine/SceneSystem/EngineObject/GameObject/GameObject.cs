@@ -1,13 +1,10 @@
 ﻿using System.Reflection;
 using System.Text.Json.Serialization;
-using DustyEngine_V3;
 using DustyEngine;
 using DustyEngine.Components;
-using Object = DustyEngine.Object;
 
-public class GameObject : Object
+public class GameObject : EngineObject
 {
-    public string Name { get; set; }
     public bool IsActive { get; set; } = true;
 
     public List<GameObject> Children { get; set; } = new List<GameObject>();
@@ -15,10 +12,8 @@ public class GameObject : Object
 
     [JsonIgnore] public GameObject Parent { get; set; }
 
-    public GameObject(string name = "New GameObject")
-    {
-        Name = name;
-    }
+    public GameObject(string name = "New GameObject") => Name = name;
+    
     public void SetActive(bool isActive)
     {
         InvokeMethodInComponents(isActive ? "OnEnable" : "OnDisable");

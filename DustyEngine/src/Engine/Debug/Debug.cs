@@ -1,6 +1,6 @@
 ﻿using System.Runtime.CompilerServices;
 
-namespace DustyEngine_V3
+namespace DustyEngine
 {
     public static class Debug
     {
@@ -50,7 +50,6 @@ namespace DustyEngine_V3
         public static void EnableConsoleLogging(bool enabled) => writeToConsole = enabled;
         public static void EnableFileLogging(bool enabled) => writeToFile = enabled;
         public static void EnableDebugMode(bool enabled) => IsDebugMode = enabled;
-
         public static void ShowLogs() => logMessages.ForEach(Console.WriteLine);
 
         public static void ClearLogs()

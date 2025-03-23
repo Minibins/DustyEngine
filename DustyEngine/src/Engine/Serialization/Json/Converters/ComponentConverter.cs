@@ -1,7 +1,6 @@
 ﻿using System.Reflection;
 using System.Text.Json;
 using System.Text.Json.Serialization;
-using DustyEngine_V3;
 using DustyEngine.Components;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
@@ -30,7 +29,7 @@ namespace DustyEngine.Json.Converters
                 string typeName = doc.RootElement.GetProperty("Type").GetString();
 
                 if (!ComponentTypes.TryGetValue(typeName, out Type componentType))
-                    throw new JsonException($"Unknown component: {typeName}");
+                    Debug.Log($"Unknown component: {typeName}", Debug.LogLevel.Error, true);
 
                 if (doc.RootElement.TryGetProperty("sourcePath", out JsonElement externalSourcePath))
                 {
@@ -52,8 +51,7 @@ namespace DustyEngine.Json.Converters
                 return (Component)JsonSerializer.Deserialize(doc.RootElement.GetRawText(), componentType, newOptions)!;
             }
         }
-
-
+        
         public static Component? LoadOrCompileComponent(string path)
         {
             string typeName = Path.GetFileNameWithoutExtension(path);
@@ -75,8 +73,7 @@ namespace DustyEngine.Json.Converters
 
             return null;
         }
-
-
+        
         private static Component? LoadComponentFromDll(string dllPath, string typeName)
         {
             try
@@ -101,11 +98,10 @@ namespace DustyEngine.Json.Converters
                 throw;
             }
         }
-
-
+        
         private static string CompileSourceToDll(string sourcePath)
         {
-            string outputDirectory = Path.Combine(Program.ProjectFolderPath, "Dlls");
+            string outputDirectory = Path.Combine(Program.ProjectFolderPath, "Settings/Dlls");
 
             if (!Directory.Exists(outputDirectory))
             {
@@ -183,105 +179,99 @@ namespace DustyEngine.Json.Converters
             return outputDllPath;
         }
 
-
-public override void Write(Utf8JsonWriter writer, Component value, JsonSerializerOptions options)
-{
-    writer.WriteStartObject();
-    writer.WriteString("Type", value.GetType().Name);
-
-    var type = value.GetType();
-    var members = type.GetMembers(BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic);
-
-    foreach (var member in members)
-    {
-        if (member.Name.Contains("k__BackingField"))
-            continue;
-
-        if (HasJsonIgnore(member, type))
-            continue;
-
-        bool shouldSerialize = false;
-
-        if (member is FieldInfo field)
+        public override void Write(Utf8JsonWriter writer, Component value, JsonSerializerOptions options)
         {
-            shouldSerialize = field.IsPublic || field.GetCustomAttribute<SerializeFieldAttribute>() != null;
-        }
-        else if (member is PropertyInfo prop)
-        {
-            // Публичное свойство с get
-            if (prop.CanRead && prop.GetMethod?.IsPublic == true)
-                shouldSerialize = true;
+            writer.WriteStartObject();
+            writer.WriteString("Type", value.GetType().Name);
 
-            // Или приватное с [SerializeField]
-            if (prop.GetCustomAttribute<SerializeFieldAttribute>() != null && prop.CanRead)
-                shouldSerialize = true;
-        }
+            var type = value.GetType();
+            var members = type.GetMembers(BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic);
 
-        if (!shouldSerialize)
-            continue;
-
-        object? valueToWrite = null;
-
-        try
-        {
-            valueToWrite = member switch
+            foreach (var member in members)
             {
-                FieldInfo f => f.GetValue(value),
-                PropertyInfo p => p.GetValue(value),
-                _ => null
-            };
-        }
-        catch (Exception ex)
-        {
-            Debug.Log($"[Warning] Skipping '{member.Name}': {ex.Message}", Debug.LogLevel.Warning);
-            continue;
-        }
+                if (member.Name.Contains("k__BackingField"))
+                    continue;
 
-        if (valueToWrite != null)
-        {
-            try
-            {
-                writer.WritePropertyName(member.Name);
-                JsonSerializer.Serialize(writer, valueToWrite, options);
+                if (HasJsonIgnore(member, type))
+                    continue;
+
+                bool shouldSerialize = false;
+
+                if (member is FieldInfo field)
+                {
+                    shouldSerialize = field.IsPublic || field.GetCustomAttribute<SerializeFieldAttribute>() != null;
+                }
+                else if (member is PropertyInfo prop)
+                {
+                    if (prop.CanRead && prop.GetMethod?.IsPublic == true)
+                        shouldSerialize = true;
+                    
+                    if (prop.GetCustomAttribute<SerializeFieldAttribute>() != null && prop.CanRead)
+                        shouldSerialize = true;
+                }
+
+                if (!shouldSerialize)
+                    continue;
+
+                object? valueToWrite = null;
+
+                try
+                {
+                    valueToWrite = member switch
+                    {
+                        FieldInfo f => f.GetValue(value),
+                        PropertyInfo p => p.GetValue(value),
+                        _ => null
+                    };
+                }
+                catch (Exception ex)
+                {
+                    Debug.Log($"[Warning] Skipping '{member.Name}': {ex.Message}", Debug.LogLevel.Warning);
+                    continue;
+                }
+
+                if (valueToWrite != null)
+                {
+                    try
+                    {
+                        writer.WritePropertyName(member.Name);
+                        JsonSerializer.Serialize(writer, valueToWrite, options);
+                    }
+                    catch (Exception ex)
+                    {
+                        Debug.Log($"[Warning] Failed to serialize '{member.Name}': {ex.Message}",
+                            Debug.LogLevel.Warning);
+                    }
+                }
             }
-            catch (Exception ex)
-            {
-                Debug.Log($"[Warning] Failed to serialize '{member.Name}': {ex.Message}", Debug.LogLevel.Warning);
-            }
+
+            writer.WriteEndObject();
         }
-    }
 
-    writer.WriteEndObject();
-}
-private static bool HasJsonIgnore(MemberInfo member, Type declaringType)
-{
-    // Прямо на члене
-    if (member.GetCustomAttribute<JsonIgnoreAttribute>() != null)
-        return true;
+        private static bool HasJsonIgnore(MemberInfo member, Type declaringType)
+        {
+            if (member.GetCustomAttribute<JsonIgnoreAttribute>() != null)
+                return true;
 
-    // Если это свойство — ищем оригинал в типе
-    if (member is PropertyInfo prop)
-    {
-        var realProp = declaringType.GetProperty(prop.Name,
-            BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic);
+            if (member is PropertyInfo prop)
+            {
+                var realProp = declaringType.GetProperty(prop.Name,
+                    BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic);
 
-        if (realProp?.GetCustomAttribute<JsonIgnoreAttribute>() != null)
-            return true;
-    }
+                if (realProp?.GetCustomAttribute<JsonIgnoreAttribute>() != null)
+                    return true;
+            }
 
-    // То же самое для полей
-    if (member is FieldInfo field)
-    {
-        var realField = declaringType.GetField(field.Name,
-            BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic);
+            if (member is FieldInfo field)
+            {
+                var realField = declaringType.GetField(field.Name,
+                    BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic);
 
-        if (realField?.GetCustomAttribute<JsonIgnoreAttribute>() != null)
-            return true;
-    }
+                if (realField?.GetCustomAttribute<JsonIgnoreAttribute>() != null)
+                    return true;
+            }
 
-    return false;
-}
-
-
+            return false;
+        }
     }
 }
